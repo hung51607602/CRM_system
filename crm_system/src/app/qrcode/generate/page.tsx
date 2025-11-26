@@ -227,7 +227,8 @@ export default function QRCodeGeneratePage() {
     const campusTitles: Record<string, string> = {
       'WC': '灣仔校舍',
       'WTS': '黃大仙校舍',
-      'SM': '石門校舍'
+      'SM': '石門校舍',
+      'PNG': '檳城校舍'
     };
     return campusTitles[code] || '校區';
   };
@@ -334,7 +335,8 @@ export default function QRCodeGeneratePage() {
     const regionNames: Record<string, string> = {
       'WC': '灣仔',
       'WTS': '黃大仙',
-      'SM': '石門'
+      'SM': '石門',
+      'PNG': '檳城'
     };
     return regionNames[code] || code;
   };
@@ -409,6 +411,7 @@ export default function QRCodeGeneratePage() {
                   { value: 'WC', label: 'WC-灣仔' },
                   { value: 'WTS', label: 'WTS-黃大仙' },
                   { value: 'SM', label: 'SM-石門' },
+                  { value: 'PNG', label: 'PNG-檳城' },
                 ]}
                 placeholder="請選擇地區"
                 required
