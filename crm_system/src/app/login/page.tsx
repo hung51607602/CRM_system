@@ -80,7 +80,7 @@ function LoginForm() {
             Welcome
           </h2>
         </div>
-        
+
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
@@ -131,13 +131,7 @@ function LoginForm() {
             </button>
           </div>
 
-          <div className="text-center">
-            <div className="text-sm text-gray-600">
-              <div className="font-medium">測試帳號：</div>
-              <div>使用者名稱：admin</div>
-              <div>密碼：password123</div>
-            </div>
-          </div>
+
         </form>
       </div>
     </div>

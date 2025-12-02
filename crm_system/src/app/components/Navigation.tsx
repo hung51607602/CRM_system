@@ -17,7 +17,7 @@ export default function Navigation() {
   const [isActivityManagementOpen, setIsActivityManagementOpen] = useState(false);
   const [isFinancialManagementOpen, setIsFinancialManagementOpen] = useState(false);
   const [isQRCodeOpen, setIsQRCodeOpen] = useState(false);
-  
+
   // 防止快速鼠标移动造成的闪烁
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const accountTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -30,31 +30,31 @@ export default function Navigation() {
     } else {
       setIsAttendanceOpen(false);
     }
-    
+
     if (pathname.startsWith('/member_management')) {
       setIsMemberManagementOpen(true);
     } else {
       setIsMemberManagementOpen(false);
     }
-    
+
     if (pathname.startsWith('/trainer_management')) {
       setIsTrainerManagementOpen(true);
     } else {
       setIsTrainerManagementOpen(false);
     }
-    
+
     if (pathname.startsWith('/account_management')) {
       setIsAccountOpen(true);
     } else {
       setIsAccountOpen(false);
     }
-    
+
     if (pathname.startsWith('/activity_management')) {
       setIsActivityManagementOpen(true);
     } else {
       setIsActivityManagementOpen(false);
     }
-    
+
     if (pathname.startsWith('/financial_management')) {
       setIsFinancialManagementOpen(true);
     } else {
@@ -144,15 +144,12 @@ export default function Navigation() {
           >
             <div className="relative w-6 h-6 flex flex-col justify-center items-center">
               {/* 漢堡包菜單動畫圖標 */}
-              <span className={`block absolute h-0.5 w-6 bg-gray-700 transform transition duration-300 ease-in-out ${
-                isCollapsed ? 'rotate-0 -translate-y-2' : 'rotate-45 translate-y-0'
-              }`} />
-              <span className={`block absolute h-0.5 w-6 bg-gray-700 transform transition duration-300 ease-in-out ${
-                isCollapsed ? 'opacity-100' : 'opacity-0'
-              }`} />
-              <span className={`block absolute h-0.5 w-6 bg-gray-700 transform transition duration-300 ease-in-out ${
-                isCollapsed ? 'rotate-0 translate-y-2' : '-rotate-45 translate-y-0'
-              }`} />
+              <span className={`block absolute h-0.5 w-6 bg-gray-700 transform transition duration-300 ease-in-out ${isCollapsed ? 'rotate-0 -translate-y-2' : 'rotate-45 translate-y-0'
+                }`} />
+              <span className={`block absolute h-0.5 w-6 bg-gray-700 transform transition duration-300 ease-in-out ${isCollapsed ? 'opacity-100' : 'opacity-0'
+                }`} />
+              <span className={`block absolute h-0.5 w-6 bg-gray-700 transform transition duration-300 ease-in-out ${isCollapsed ? 'rotate-0 translate-y-2' : '-rotate-45 translate-y-0'
+                }`} />
             </div>
           </button>
 
@@ -168,15 +165,14 @@ export default function Navigation() {
 
       {/* 侧边导航栏 */}
       <nav
-        className={`fixed z-50 transition-all duration-300 ease-in-out bg-white ${
-          isMobile
-            ? isCollapsed
-              ? 'hidden'
-              : 'inset-0 top-16 overflow-y-auto'
-            : isCollapsed
-              ? 'left-0 top-0 h-full w-16 shadow-2xl border-r border-gray-200'
-              : 'left-0 top-0 h-full w-56 shadow-2xl border-r border-gray-200'
-        }`}
+        className={`fixed z-50 transition-all duration-300 ease-in-out bg-white ${isMobile
+          ? isCollapsed
+            ? 'hidden'
+            : 'inset-0 top-16 overflow-y-auto'
+          : isCollapsed
+            ? 'left-0 top-0 h-full w-16 shadow-2xl border-r border-gray-200'
+            : 'left-0 top-0 h-full w-56 shadow-2xl border-r border-gray-200'
+          }`}
         style={{
           transform: 'translateZ(0)',
           backfaceVisibility: 'hidden',
@@ -231,9 +227,8 @@ export default function Navigation() {
                 className="p-2 rounded-md hover:bg-gray-100 transition-colors"
               >
                 <svg
-                  className={`w-5 h-5 text-gray-600 transition-transform duration-300 ${
-                    isCollapsed ? 'rotate-180' : ''
-                  }`}
+                  className={`w-5 h-5 text-gray-600 transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''
+                    }`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -259,11 +254,11 @@ export default function Navigation() {
                       <div className="text-sm font-medium text-gray-900 truncate">{user.username}</div>
                       <div className="text-xs text-gray-500 capitalize">{
                         user.role === 'admin' ? '管理員' :
-                        user.role === 'trainer' ? '教練' :
-                        user.role === 'regular-member' ? '普通會員' :
-                        user.role === 'premium-member' ? '星級會員' :
-                        user.role === 'member' ? '會員' :
-                        '普通用戶'
+                          user.role === 'trainer' ? '教練' :
+                            user.role === 'regular-member' ? '普通會員' :
+                              user.role === 'premium-member' ? '星級會員' :
+                                user.role === 'member' ? '會員' :
+                                  '普通用戶'
                       }</div>
                     </div>
                   </div>
@@ -305,11 +300,10 @@ export default function Navigation() {
               <li>
                 <Link
                   href="/"
-                  className={`flex items-center space-x-3 px-3 py-2 rounded-md transition-colors ${
-                    isActive('/')
-                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
-                      : 'text-gray-700 hover:bg-gray-100'
-                  }`}
+                  className={`flex items-center space-x-3 px-3 py-2 rounded-md transition-colors ${isActive('/')
+                    ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
+                    : 'text-gray-700 hover:bg-gray-100'
+                    }`}
                 >
                   {!isCollapsed && (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -325,11 +319,10 @@ export default function Navigation() {
                 <li>
                   <Link
                     href="/attendance/activity_management"
-                    className={`flex items-center space-x-3 px-3 py-2 rounded-md transition-colors ${
-                      pathname === '/attendance/activity_management'
-                        ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
+                    className={`flex items-center space-x-3 px-3 py-2 rounded-md transition-colors ${pathname === '/attendance/activity_management'
+                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
+                      : 'text-gray-700 hover:bg-gray-100'
+                      }`}
                   >
                     {!isCollapsed && (
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -347,11 +340,10 @@ export default function Navigation() {
                 {['member', 'regular-member', 'premium-member'].includes(user?.role || '') ? (
                   <Link
                     href="/attendance/scan"
-                    className={`flex items-center space-x-3 px-3 py-2 rounded-md transition-colors ${
-                      pathname === '/attendance/scan'
-                        ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
+                    className={`flex items-center space-x-3 px-3 py-2 rounded-md transition-colors ${pathname === '/attendance/scan'
+                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
+                      : 'text-gray-700 hover:bg-gray-100'
+                      }`}
                   >
                     {!isCollapsed && (
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -365,11 +357,10 @@ export default function Navigation() {
                   <div>
                     <button
                       onClick={() => setIsAttendanceOpen(!isAttendanceOpen)}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-md transition-colors ${
-                        isAttendanceActive()
-                          ? 'bg-blue-50 text-blue-700'
-                          : 'text-gray-700 hover:bg-gray-100'
-                      }`}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-md transition-colors ${isAttendanceActive()
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'text-gray-700 hover:bg-gray-100'
+                        }`}
                     >
                       <div className="flex items-center space-x-3">
                         {!isCollapsed && (
@@ -400,11 +391,10 @@ export default function Navigation() {
                             <li>
                               <Link
                                 href="/attendance"
-                                className={`block px-3 py-2 text-sm rounded-md transition-colors ${
-                                  pathname === '/attendance'
-                                    ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
-                                    : 'text-gray-600 hover:bg-gray-100'
-                                }`}
+                                className={`block px-3 py-2 text-sm rounded-md transition-colors ${pathname === '/attendance'
+                                  ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
+                                  : 'text-gray-600 hover:bg-gray-100'
+                                  }`}
                               >
                                 運動班
                               </Link>
@@ -412,11 +402,10 @@ export default function Navigation() {
                             <li>
                               <Link
                                 href="/attendance/check"
-                                className={`block px-3 py-2 text-sm rounded-md transition-colors ${
-                                  pathname === '/attendance/check'
-                                    ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
-                                    : 'text-gray-600 hover:bg-gray-100'
-                                }`}
+                                className={`block px-3 py-2 text-sm rounded-md transition-colors ${pathname === '/attendance/check'
+                                  ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
+                                  : 'text-gray-600 hover:bg-gray-100'
+                                  }`}
                               >
                                 點名記錄
                               </Link>
@@ -424,11 +413,10 @@ export default function Navigation() {
                             <li>
                               <Link
                                 href="/attendance/by_name"
-                                className={`block px-3 py-2 text-sm rounded-md transition-colors ${
-                                  pathname === '/attendance/by_name'
-                                    ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
-                                    : 'text-gray-600 hover:bg-gray-100'
-                                }`}
+                                className={`block px-3 py-2 text-sm rounded-md transition-colors ${pathname === '/attendance/by_name'
+                                  ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
+                                  : 'text-gray-600 hover:bg-gray-100'
+                                  }`}
                               >
                                 按教練分類
                               </Link>
@@ -440,11 +428,10 @@ export default function Navigation() {
                           <li>
                             <Link
                               href="/attendance/checkin"
-                              className={`block px-3 py-2 text-sm rounded-md transition-colors ${
-                                pathname === '/attendance/checkin'
-                                  ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
-                                  : 'text-gray-600 hover:bg-gray-100'
-                              }`}
+                              className={`block px-3 py-2 text-sm rounded-md transition-colors ${pathname === '/attendance/checkin'
+                                ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
+                                : 'text-gray-600 hover:bg-gray-100'
+                                }`}
                             >
                               補簽到
                             </Link>
@@ -461,11 +448,10 @@ export default function Navigation() {
                 <li>
                   <Link
                     href="/member_management/my_profile"
-                    className={`flex items-center space-x-3 px-3 py-2 rounded-md transition-colors ${
-                      pathname === '/member_management/my_profile'
-                        ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
+                    className={`flex items-center space-x-3 px-3 py-2 rounded-md transition-colors ${pathname === '/member_management/my_profile'
+                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
+                      : 'text-gray-700 hover:bg-gray-100'
+                      }`}
                   >
                     {!isCollapsed && (
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -482,11 +468,10 @@ export default function Navigation() {
                 <li>
                   <Link
                     href="/transaction_records"
-                    className={`flex items-center space-x-3 px-3 py-2 rounded-md transition-colors ${
-                      pathname === '/transaction_records'
-                        ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
+                    className={`flex items-center space-x-3 px-3 py-2 rounded-md transition-colors ${pathname === '/transaction_records'
+                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-700'
+                      : 'text-gray-700 hover:bg-gray-100'
+                      }`}
                   >
                     {!isCollapsed && (
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -504,11 +489,10 @@ export default function Navigation() {
                   <div>
                     <button
                       onClick={() => setIsMemberManagementOpen(!isMemberManagementOpen)}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-md transition-colors ${
-                        isMemberManagementActive()
-                          ? 'bg-blue-50 text-blue-700'
-                          : 'text-gray-700 hover:bg-gray-100'
-                      }`}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-md transition-colors ${isMemberManagementActive()
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'text-gray-700 hover:bg-gray-100'
+                        }`}
                     >
                       <div className="flex items-center space-x-3">
                         {!isCollapsed && (
@@ -536,11 +520,10 @@ export default function Navigation() {
                         <li>
                           <Link
                             href="/member_management/profile"
-                            className={`block px-3 py-2 text-sm rounded-md transition-colors ${
-                              pathname === '/member_management/profile'
-                                ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
-                                : 'text-gray-600 hover:bg-gray-100'
-                            }`}
+                            className={`block px-3 py-2 text-sm rounded-md transition-colors ${pathname === '/member_management/profile'
+                              ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
+                              : 'text-gray-600 hover:bg-gray-100'
+                              }`}
                           >
                             續卡
                           </Link>
@@ -557,11 +540,10 @@ export default function Navigation() {
                   <div>
                     <button
                       onClick={() => setIsTrainerManagementOpen(!isTrainerManagementOpen)}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-md transition-colors ${
-                        isTrainerManagementActive()
-                          ? 'bg-blue-50 text-blue-700'
-                          : 'text-gray-700 hover:bg-gray-100'
-                      }`}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-md transition-colors ${isTrainerManagementActive()
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'text-gray-700 hover:bg-gray-100'
+                        }`}
                     >
                       <div className="flex items-center space-x-3">
                         {!isCollapsed && (
@@ -572,10 +554,10 @@ export default function Navigation() {
                         {!isCollapsed && <span>教練管理</span>}
                       </div>
                       {!isCollapsed && (
-                        <svg 
-                          className={`w-4 h-4 transition-transform duration-200 ${isTrainerManagementOpen ? 'rotate-180' : ''}`} 
-                          fill="none" 
-                          stroke="currentColor" 
+                        <svg
+                          className={`w-4 h-4 transition-transform duration-200 ${isTrainerManagementOpen ? 'rotate-180' : ''}`}
+                          fill="none"
+                          stroke="currentColor"
                           viewBox="0 0 24 24"
                         >
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -589,11 +571,10 @@ export default function Navigation() {
                         <li>
                           <Link
                             href="/trainer_management/profile"
-                            className={`block px-3 py-2 text-sm rounded-md transition-colors ${
-                              pathname === '/trainer_management/profile'
-                                ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
-                                : 'text-gray-600 hover:bg-gray-100'
-                            }`}
+                            className={`block px-3 py-2 text-sm rounded-md transition-colors ${pathname === '/trainer_management/profile'
+                              ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
+                              : 'text-gray-600 hover:bg-gray-100'
+                              }`}
                           >
                             教練資料
                           </Link>
@@ -610,11 +591,10 @@ export default function Navigation() {
                   <div>
                     <button
                       onClick={() => setIsActivityManagementOpen(!isActivityManagementOpen)}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-md transition-colors ${
-                        isActivityManagementActive()
-                          ? 'bg-blue-50 text-blue-700'
-                          : 'text-gray-700 hover:bg-gray-100'
-                      }`}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-md transition-colors ${isActivityManagementActive()
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'text-gray-700 hover:bg-gray-100'
+                        }`}
                     >
                       <div className="flex items-center space-x-3">
                         {!isCollapsed && (
@@ -625,10 +605,10 @@ export default function Navigation() {
                         {!isCollapsed && <span>活動管理</span>}
                       </div>
                       {!isCollapsed && (
-                        <svg 
-                          className={`w-4 h-4 transition-transform duration-200 ${isActivityManagementOpen ? 'rotate-180' : ''}`} 
-                          fill="none" 
-                          stroke="currentColor" 
+                        <svg
+                          className={`w-4 h-4 transition-transform duration-200 ${isActivityManagementOpen ? 'rotate-180' : ''}`}
+                          fill="none"
+                          stroke="currentColor"
                           viewBox="0 0 24 24"
                         >
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -642,11 +622,10 @@ export default function Navigation() {
                         <li>
                           <Link
                             href="/activity_management/my_activity"
-                            className={`block px-3 py-2 text-sm rounded-md transition-colors ${
-                              pathname === '/activity_management/my_activity'
-                                ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
-                                : 'text-gray-600 hover:bg-gray-100'
-                            }`}
+                            className={`block px-3 py-2 text-sm rounded-md transition-colors ${pathname === '/activity_management/my_activity'
+                              ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
+                              : 'text-gray-600 hover:bg-gray-100'
+                              }`}
                           >
                             我的活動
                           </Link>
@@ -663,11 +642,10 @@ export default function Navigation() {
                   <div>
                     <button
                       onClick={() => setIsFinancialManagementOpen(!isFinancialManagementOpen)}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-md transition-colors ${
-                        isFinancialManagementActive()
-                          ? 'bg-blue-50 text-blue-700'
-                          : 'text-gray-700 hover:bg-gray-100'
-                      }`}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-md transition-colors ${isFinancialManagementActive()
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'text-gray-700 hover:bg-gray-100'
+                        }`}
                     >
                       <div className="flex items-center space-x-3">
                         {!isCollapsed && (
@@ -678,10 +656,10 @@ export default function Navigation() {
                         {!isCollapsed && <span>財務管理</span>}
                       </div>
                       {!isCollapsed && (
-                        <svg 
-                          className={`w-4 h-4 transition-transform duration-200 ${isFinancialManagementOpen ? 'rotate-180' : ''}`} 
-                          fill="none" 
-                          stroke="currentColor" 
+                        <svg
+                          className={`w-4 h-4 transition-transform duration-200 ${isFinancialManagementOpen ? 'rotate-180' : ''}`}
+                          fill="none"
+                          stroke="currentColor"
                           viewBox="0 0 24 24"
                         >
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -695,11 +673,10 @@ export default function Navigation() {
                         <li>
                           <Link
                             href="/financial_management"
-                            className={`block px-3 py-2 text-sm rounded-md transition-colors ${
-                              pathname === '/financial_management'
-                                ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
-                                : 'text-gray-600 hover:bg-gray-100'
-                            }`}
+                            className={`block px-3 py-2 text-sm rounded-md transition-colors ${pathname === '/financial_management'
+                              ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
+                              : 'text-gray-600 hover:bg-gray-100'
+                              }`}
                           >
                             財務總覽
                           </Link>
@@ -707,11 +684,10 @@ export default function Navigation() {
                         <li>
                           <Link
                             href="/financial_management/by_name"
-                            className={`block px-3 py-2 text-sm rounded-md transition-colors ${
-                              pathname === '/financial_management/by_name'
-                                ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
-                                : 'text-gray-600 hover:bg-gray-100'
-                            }`}
+                            className={`block px-3 py-2 text-sm rounded-md transition-colors ${pathname === '/financial_management/by_name'
+                              ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
+                              : 'text-gray-600 hover:bg-gray-100'
+                              }`}
                           >
                             按姓名分類
                           </Link>
@@ -719,11 +695,10 @@ export default function Navigation() {
                         <li>
                           <Link
                             href="/financial_management/report"
-                            className={`block px-3 py-2 text-sm rounded-md transition-colors ${
-                              pathname === '/financial_management/report'
-                                ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
-                                : 'text-gray-600 hover:bg-gray-100'
-                            }`}
+                            className={`block px-3 py-2 text-sm rounded-md transition-colors ${pathname === '/financial_management/report'
+                              ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
+                              : 'text-gray-600 hover:bg-gray-100'
+                              }`}
                           >
                             財務報告
                           </Link>
@@ -731,11 +706,10 @@ export default function Navigation() {
                         <li>
                           <Link
                             href="/financial_management/add"
-                            className={`block px-3 py-2 text-sm rounded-md transition-colors ${
-                              pathname === '/financial_management/add'
-                                ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
-                                : 'text-gray-600 hover:bg-gray-100'
-                            }`}
+                            className={`block px-3 py-2 text-sm rounded-md transition-colors ${pathname === '/financial_management/add'
+                              ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
+                              : 'text-gray-600 hover:bg-gray-100'
+                              }`}
                           >
                             新增記錄
                           </Link>
@@ -752,11 +726,10 @@ export default function Navigation() {
                   <div>
                     <button
                       onClick={() => setIsAccountOpen(!isAccountOpen)}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-md transition-colors ${
-                        isAccountActive()
-                          ? 'bg-blue-50 text-blue-700'
-                          : 'text-gray-700 hover:bg-gray-100'
-                      }`}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-md transition-colors ${isAccountActive()
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'text-gray-700 hover:bg-gray-100'
+                        }`}
                     >
                       <div className="flex items-center space-x-3">
                         {!isCollapsed && (
@@ -767,10 +740,10 @@ export default function Navigation() {
                         {!isCollapsed && <span>帳號管理</span>}
                       </div>
                       {!isCollapsed && (
-                        <svg 
-                          className={`w-4 h-4 transition-transform duration-200 ${isAccountOpen ? 'rotate-180' : ''}`} 
-                          fill="none" 
-                          stroke="currentColor" 
+                        <svg
+                          className={`w-4 h-4 transition-transform duration-200 ${isAccountOpen ? 'rotate-180' : ''}`}
+                          fill="none"
+                          stroke="currentColor"
                           viewBox="0 0 24 24"
                         >
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -784,11 +757,10 @@ export default function Navigation() {
                         <li>
                           <Link
                             href="/account_management/admin"
-                            className={`block px-3 py-2 text-sm rounded-md transition-colors ${
-                              pathname === '/account_management/admin'
-                                ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
-                                : 'text-gray-600 hover:bg-gray-100'
-                            }`}
+                            className={`block px-3 py-2 text-sm rounded-md transition-colors ${pathname === '/account_management/admin'
+                              ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
+                              : 'text-gray-600 hover:bg-gray-100'
+                              }`}
                           >
                             管理員
                           </Link>
@@ -796,11 +768,10 @@ export default function Navigation() {
                         <li>
                           <Link
                             href="/account_management/trainer"
-                            className={`block px-3 py-2 text-sm rounded-md transition-colors ${
-                              pathname === '/account_management/trainer'
-                                ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
-                                : 'text-gray-600 hover:bg-gray-100'
-                            }`}
+                            className={`block px-3 py-2 text-sm rounded-md transition-colors ${pathname === '/account_management/trainer'
+                              ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
+                              : 'text-gray-600 hover:bg-gray-100'
+                              }`}
                           >
                             教練
                           </Link>
@@ -808,11 +779,10 @@ export default function Navigation() {
                         <li>
                           <Link
                             href="/account_management/member"
-                            className={`block px-3 py-2 text-sm rounded-md transition-colors ${
-                              pathname === '/account_management/member'
-                                ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
-                                : 'text-gray-600 hover:bg-gray-100'
-                            }`}
+                            className={`block px-3 py-2 text-sm rounded-md transition-colors ${pathname === '/account_management/member'
+                              ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
+                              : 'text-gray-600 hover:bg-gray-100'
+                              }`}
                           >
                             會員
                           </Link>
@@ -829,11 +799,10 @@ export default function Navigation() {
                   <div>
                     <button
                       onClick={() => setIsQRCodeOpen(!isQRCodeOpen)}
-                      className={`w-full flex items-center justify-between px-3 py-2 rounded-md transition-colors ${
-                        isQRCodeActive()
-                          ? 'bg-blue-50 text-blue-700'
-                          : 'text-gray-700 hover:bg-gray-100'
-                      }`}
+                      className={`w-full flex items-center justify-between px-3 py-2 rounded-md transition-colors ${isQRCodeActive()
+                        ? 'bg-blue-50 text-blue-700'
+                        : 'text-gray-700 hover:bg-gray-100'
+                        }`}
                     >
                       <div className="flex items-center space-x-3">
                         {!isCollapsed && (
@@ -861,11 +830,10 @@ export default function Navigation() {
                         <li>
                           <Link
                             href="/qrcode/generate"
-                            className={`block px-3 py-2 text-sm rounded-md transition-colors ${
-                              pathname === '/qrcode/generate'
-                                ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
-                                : 'text-gray-600 hover:bg-gray-100'
-                            }`}
+                            className={`block px-3 py-2 text-sm rounded-md transition-colors ${pathname === '/qrcode/generate'
+                              ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
+                              : 'text-gray-600 hover:bg-gray-100'
+                              }`}
                           >
                             二維碼生成
                           </Link>
