@@ -8,12 +8,12 @@ interface LocationPermissionEditorProps {
   disabled?: boolean;
 }
 
-const AVAILABLE_LOCATIONS = ['灣仔', '黃大仙', '石門'];
+import { AVAILABLE_LOCATIONS } from '@/utils/constants';
 
-export default function LocationPermissionEditor({ 
-  initialLocations, 
-  onLocationsChange, 
-  disabled = false 
+export default function LocationPermissionEditor({
+  initialLocations,
+  onLocationsChange,
+  disabled = false
 }: LocationPermissionEditorProps) {
   const [selectedLocations, setSelectedLocations] = useState<string[]>(initialLocations || []);
 
@@ -23,11 +23,11 @@ export default function LocationPermissionEditor({
 
   const handleLocationToggle = (location: string) => {
     if (disabled) return;
-    
+
     const newSelectedLocations = selectedLocations.includes(location)
       ? selectedLocations.filter(loc => loc !== location)
       : [...selectedLocations, location];
-    
+
     setSelectedLocations(newSelectedLocations);
     onLocationsChange(newSelectedLocations);
   };

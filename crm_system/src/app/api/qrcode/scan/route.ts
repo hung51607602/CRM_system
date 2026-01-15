@@ -50,9 +50,9 @@ export async function POST(request: NextRequest) {
 
     // 地区名称映射
     const regionNames: Record<string, string> = {
-      'WC': '灣仔',
-      'WTS': '黃大仙',
-      'SM': '石門'
+      'WC': 'HK - I FIT',
+      'WTS': 'HK - 落腳地',
+      'SM': 'PEN - SHAKE & SHAPE'
     };
 
     // 返回格式化的显示数据

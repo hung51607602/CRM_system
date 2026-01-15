@@ -7,9 +7,9 @@ export interface IAccount extends Document {
   displayPassword: string;   // 明文密碼 (用於管理界面顯示)
   role: 'admin' | 'user' | 'trainer' | 'member' | 'regular-member' | 'premium-member';    // 角色：管理員、普通用戶、教練、會員、普通會員、星級會員
   isActive: boolean;         // 賬號是否激活
-  locations: string[];       // 地區權限：['灣仔', '黃大仙', '石門']
+  locations: string[];       // 地區權限：['HK - I FIT', 'HK - 落腳地', 'PEN - SHAKE & SHAPE']
   lastLogin?: Date;          // 最後登錄時間
-  
+
   // 会员专用字段
   memberName?: string;       // 会员真实姓名
   phone?: string;           // 电话号码
@@ -24,10 +24,10 @@ export interface IAccount extends Document {
   initialTickets?: number;   // 初始套票次數 (創建時的配额)
   addedTickets?: number;     // 累計添加的套票次數 (續卡時增加的總和)
   usedTickets?: number;      // 已使用套票次數 (參加活動次數)
-  
+
   createdAt: Date;
   updatedAt: Date;
-  
+
   // 方法
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
@@ -63,17 +63,17 @@ const AccountSchema: Schema = new Schema({
   },
   locations: {
     type: [String],
-    enum: ['灣仔', '黃大仙', '石門'],
+    enum: ['HK - I FIT', 'HK - 落腳地', 'PEN - SHAKE & SHAPE'],
     default: []
   },
   lastLogin: {
     type: Date
   },
-  
+
   // 会员专用字段
   memberName: {
     type: String,
-    required: function(this: IAccount) {
+    required: function (this: IAccount) {
       return ['member', 'regular-member', 'premium-member'].includes(this.role);
     },
     trim: true,
@@ -81,7 +81,7 @@ const AccountSchema: Schema = new Schema({
   },
   phone: {
     type: String,
-    required: function(this: IAccount) {
+    required: function (this: IAccount) {
       return ['member', 'regular-member', 'premium-member'].includes(this.role);
     },
     trim: true,
@@ -89,7 +89,7 @@ const AccountSchema: Schema = new Schema({
   },
   herbalifePCNumber: {
     type: String,
-    required: function(this: IAccount) {
+    required: function (this: IAccount) {
       return ['member', 'regular-member', 'premium-member'].includes(this.role);
     },
     trim: true,
@@ -97,13 +97,13 @@ const AccountSchema: Schema = new Schema({
   },
   joinDate: {
     type: Date,
-    required: function(this: IAccount) {
+    required: function (this: IAccount) {
       return ['member', 'regular-member', 'premium-member'].includes(this.role);
     }
   },
   trainerIntroducer: {
     type: String,
-    required: function(this: IAccount) {
+    required: function (this: IAccount) {
       return ['member', 'regular-member', 'premium-member'].includes(this.role);
     },
     trim: true,
@@ -116,7 +116,7 @@ const AccountSchema: Schema = new Schema({
   },
   quota: {
     type: Number,
-    required: function(this: IAccount) {
+    required: function (this: IAccount) {
       return ['member', 'regular-member', 'premium-member'].includes(this.role);
     },
     min: [0, '配额不能为负数'],
@@ -154,16 +154,16 @@ const AccountSchema: Schema = new Schema({
 });
 
 // 密码加密中间件
-AccountSchema.pre<IAccount>('save', async function(next) {
+AccountSchema.pre<IAccount>('save', async function (next) {
   // 只在密码被修改时才加密
   if (!this.isModified('password')) return next();
-  
+
   try {
     // 保存明文密码到displayPassword字段（如果还没有设置的话）
     if (!this.displayPassword) {
       this.displayPassword = this.password as string;
     }
-    
+
     // 加密password字段用于验证
     const salt = await bcrypt.genSalt(12);
     this.password = await bcrypt.hash(this.password as string, salt);
@@ -174,7 +174,7 @@ AccountSchema.pre<IAccount>('save', async function(next) {
 });
 
 // 比较密码的方法
-AccountSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
+AccountSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
   return bcrypt.compare(candidatePassword, this.password);
 };
 

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import QRCode from 'qrcode';
 import CustomSelect from '@/app/components/CustomSelect';
+import { AVAILABLE_LOCATIONS } from '@/utils/constants';
 
 interface Member {
   _id: string;
@@ -60,7 +61,9 @@ export default function AddAttendancePage() {
   const [isGeneratingQr, setIsGeneratingQr] = useState(false);
 
   // 所有可用的地区
-  const ALL_LOCATIONS = useMemo(() => ['灣仔', '黃大仙', '石門'], []);
+  // 所有可用的地区
+  // const ALL_LOCATIONS = useMemo(() => ['灣仔', '黃大仙', '石門'], []);
+  // Use imported constant instead
 
   // 獲取活动列表
   const fetchActivities = async () => {
@@ -83,15 +86,16 @@ export default function AddAttendancePage() {
     if (user) {
       if (user.role === 'admin') {
         // 管理员可以選擇所有地区
-        setAvailableLocations(ALL_LOCATIONS);
+        setAvailableLocations(AVAILABLE_LOCATIONS);
       } else if (user.role === 'trainer') {
         // 教练只能選擇他们有權限的地区
         setAvailableLocations(user.locations || []);
       }
     }
+
     // 獲取活动列表
     fetchActivities();
-  }, [user, ALL_LOCATIONS]);
+  }, [user]);
 
   // 验证會員信息
   const validateMember = async (name: string, contactInfo: string) => {

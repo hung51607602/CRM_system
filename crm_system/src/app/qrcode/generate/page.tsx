@@ -225,10 +225,10 @@ export default function QRCodeGeneratePage() {
   // 獲取校區標題
   const getCampusTitle = (code: string) => {
     const campusTitles: Record<string, string> = {
-      'WC': '灣仔校舍',
-      'WTS': '黃大仙校舍',
-      'SM': '石門校舍',
-      'PNG': '檳城校舍'
+      'WC': 'HK - I FIT',
+      'WTS': 'HK - 落腳地',
+      'SM': 'PEN - SHAKE & SHAPE',
+      'PNG': '檳城'
     };
     return campusTitles[code] || '校區';
   };
@@ -333,9 +333,9 @@ export default function QRCodeGeneratePage() {
   // 獲取地區中文名
   const getRegionName = (code: string) => {
     const regionNames: Record<string, string> = {
-      'WC': '灣仔',
-      'WTS': '黃大仙',
-      'SM': '石門',
+      'WC': 'HK - I FIT',
+      'WTS': 'HK - 落腳地',
+      'SM': 'PEN - SHAKE & SHAPE',
       'PNG': '檳城'
     };
     return regionNames[code] || code;
@@ -408,10 +408,10 @@ export default function QRCodeGeneratePage() {
                 onChange={setRegionCode}
                 options={[
                   { value: '', label: '請選擇地區' },
-                  { value: 'WC', label: 'WC-灣仔' },
-                  { value: 'WTS', label: 'WTS-黃大仙' },
-                  { value: 'SM', label: 'SM-石門' },
-                  { value: 'PNG', label: 'PNG-檳城' },
+                  { value: 'WC', label: 'WC - HK - I FIT' },
+                  { value: 'WTS', label: 'WTS - HK - 落腳地' },
+                  { value: 'SM', label: 'SM - PEN - SHAKE & SHAPE' },
+                  { value: 'PNG', label: 'PNG - 檳城' },
                 ]}
                 placeholder="請選擇地區"
                 required
@@ -567,11 +567,10 @@ export default function QRCodeGeneratePage() {
             <button
               onClick={generateQRCode}
               disabled={isGenerating}
-              className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                isGenerating
-                  ? 'bg-gray-400 text-gray-700 cursor-not-allowed'
-                  : 'bg-green-600 text-white hover:bg-green-700'
-              }`}
+              className={`px-6 py-2 rounded-lg font-medium transition-colors ${isGenerating
+                ? 'bg-gray-400 text-gray-700 cursor-not-allowed'
+                : 'bg-green-600 text-white hover:bg-green-700'
+                }`}
             >
               {isGenerating ? '生成中...' : '生成二維碼'}
             </button>

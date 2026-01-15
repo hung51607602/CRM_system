@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import CustomSelect from '@/app/components/CustomSelect';
+import { AVAILABLE_LOCATIONS } from '@/utils/constants';
 
 export default function AddFinancialRecord() {
   const router = useRouter();
@@ -38,7 +39,7 @@ export default function AddFinancialRecord() {
   // 處理表單提交
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.memberName || !formData.item || formData.unitPrice <= 0) {
       alert('請填寫所有必填字段');
       return;
@@ -46,7 +47,7 @@ export default function AddFinancialRecord() {
 
     try {
       setIsSubmitting(true);
-      
+
       // 準備提交數據
       const submitData = {
         ...formData,
@@ -54,9 +55,9 @@ export default function AddFinancialRecord() {
         quantity: parseInt(formData.quantity.toString()),
         createdBy: user?.id
       };
-      
+
       console.log('提交的數據:', submitData);
-      
+
       const response = await fetch('/api/financial-records', {
         method: 'POST',
         headers: {
@@ -66,11 +67,11 @@ export default function AddFinancialRecord() {
       });
 
       console.log('API響應狀態:', response.status);
-      
+
       if (response.ok) {
         const result = await response.json();
         console.log('API響應結果:', result);
-        
+
         if (result.success) {
           alert('財務記錄創建成功！');
           router.push('/financial_management');
@@ -195,9 +196,11 @@ export default function AddFinancialRecord() {
               value={formData.location}
               onChange={(value) => setFormData(prev => ({ ...prev, location: value }))}
               options={[
-                { value: '灣仔', label: '灣仔' },
-                { value: '黃大仙', label: '黃大仙' },
-                { value: '石門', label: '石門' },
+                { value: '', label: '請選擇地點' },
+                ...AVAILABLE_LOCATIONS.map(loc => ({
+                  value: loc,
+                  label: loc
+                }))
               ]}
               placeholder="請選擇地點"
             />

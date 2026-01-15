@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useScrollOptimization } from '@/hooks/useScrollOptimization';
 import CustomSelect from '@/app/components/CustomSelect';
+import { AVAILABLE_LOCATIONS } from '@/utils/constants';
 
 interface Activity {
   _id: string;
@@ -489,9 +490,9 @@ export default function ActivityManagementPage() {
                     required
                   />
                   <datalist id="location-options">
-                    <option value="灣仔" />
-                    <option value="黃大仙" />
-                    <option value="石門" />
+                    {AVAILABLE_LOCATIONS.map(loc => (
+                      <option key={loc} value={loc} />
+                    ))}
                   </datalist>
                 </div>
               </div>

@@ -40,7 +40,7 @@ const ActivitySchema: Schema = new Schema({
     type: Date,
     required: [true, '请提供结束时间'],
     validate: {
-      validator: function(this: IActivity, value: Date) {
+      validator: function (this: IActivity, value: Date) {
         return value > this.startTime;
       },
       message: '结束时间必须晚于开始时间'
@@ -58,7 +58,7 @@ const ActivitySchema: Schema = new Schema({
   location: {
     type: String,
     required: [true, '请提供活动地点'],
-    enum: ['灣仔', '黃大仙', '石門'],
+    enum: ['HK - I FIT', 'HK - 落腳地', 'PEN - SHAKE & SHAPE'],
     trim: true
   },
   description: {
@@ -76,7 +76,7 @@ const ActivitySchema: Schema = new Schema({
 });
 
 // 自动计算持续时间
-ActivitySchema.pre<IActivity>('save', function(next) {
+ActivitySchema.pre<IActivity>('save', function (next) {
   if (this.isModified('startTime') || this.isModified('endTime')) {
     const diffMs = this.endTime.getTime() - this.startTime.getTime();
     this.duration = Math.round((diffMs / (1000 * 60 * 60)) * 100) / 100; // 保留两位小数
