@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useScrollOptimization } from '@/hooks/useScrollOptimization';
 import CustomSelect from '@/app/components/CustomSelect';
@@ -56,7 +56,7 @@ export default function ActivityManagementPage() {
       setIsLoadingActivities(true);
       const response = await fetch('/api/activities');
       const result = await response.json();
-      
+
       if (result.success) {
         setActivities(result.data);
         if (result.data.length > 0 && !selectedActivity) {
@@ -78,7 +78,7 @@ export default function ActivityManagementPage() {
       setIsLoadingTrainers(true);
       const response = await fetch('/api/accounts?role=trainer');
       const result = await response.json();
-      
+
       if (result.success) {
         setTrainers(result.data);
       } else {
@@ -110,16 +110,21 @@ export default function ActivityManagementPage() {
   // 提交添加活动
   const handleAddSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!addFormData.trainerId) {
       setError('請選擇负责教练');
+      return;
+    }
+
+    if (!addFormData.location) {
+      setError('請輸入或選擇活動地點');
       return;
     }
 
     // 验证时间
     const startTime = new Date(addFormData.startTime);
     const endTime = new Date(addFormData.endTime);
-    
+
     if (endTime <= startTime) {
       setError('结束时间必须晚于开始时间');
       return;
@@ -128,7 +133,7 @@ export default function ActivityManagementPage() {
     try {
       setIsSubmitting(true);
       const selectedTrainer = trainers.find(t => t._id === addFormData.trainerId);
-      
+
       const response = await fetch('/api/activities', {
         method: 'POST',
         headers: {
@@ -141,7 +146,7 @@ export default function ActivityManagementPage() {
       });
 
       const result = await response.json();
-      
+
       if (result.success) {
         setSuccessMessage('活动添加成功');
         setIsAddModalOpen(false);
@@ -201,7 +206,11 @@ export default function ActivityManagementPage() {
           <p className="mt-2 text-gray-600">管理活動信息、分配教練和查看參與者</p>
         </div>
         <button
-          onClick={() => setIsAddModalOpen(true)}
+          onClick={() => {
+            setError('');
+            setSuccessMessage('');
+            setIsAddModalOpen(true);
+          }}
           className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
         >
           + 添加活動
@@ -214,7 +223,7 @@ export default function ActivityManagementPage() {
           <p className="text-sm text-red-600">{error}</p>
         </div>
       )}
-      
+
       {successMessage && (
         <div className="mb-6 bg-green-50 border border-green-200 rounded-md p-4">
           <p className="text-sm text-green-600">{successMessage}</p>
@@ -230,7 +239,7 @@ export default function ActivityManagementPage() {
               <h2 className="text-lg font-semibold text-gray-900">活動列表</h2>
               <p className="text-sm text-gray-600">共 {activities.length} 個活動</p>
             </div>
-            
+
             <div className="overflow-y-auto max-h-96">
               {isLoadingActivities ? (
                 <div className="flex items-center justify-center h-32">
@@ -246,11 +255,10 @@ export default function ActivityManagementPage() {
                     <button
                       key={activity._id}
                       onClick={() => handleSelectActivity(activity)}
-                      className={`w-full text-left p-3 rounded-lg transition-colors ${
-                        selectedActivity?._id === activity._id
-                          ? 'bg-blue-50 border border-blue-200 text-blue-900'
-                          : 'hover:bg-gray-50 border border-transparent'
-                      }`}
+                      className={`w-full text-left p-3 rounded-lg transition-colors ${selectedActivity?._id === activity._id
+                        ? 'bg-blue-50 border border-blue-200 text-blue-900'
+                        : 'hover:bg-gray-50 border border-transparent'
+                        }`}
                     >
                       <div className="font-medium">{activity.activityName}</div>
                       <div className="text-sm text-gray-500">
@@ -278,15 +286,14 @@ export default function ActivityManagementPage() {
                 <div className="p-6 border-b border-gray-200">
                   <div className="flex justify-between items-start mb-6">
                     <h2 className="text-xl font-semibold text-gray-900">{selectedActivity.activityName}</h2>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      selectedActivity.isActive 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${selectedActivity.isActive
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                      }`}>
                       {selectedActivity.isActive ? '進行中' : '已結束'}
                     </span>
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -294,35 +301,35 @@ export default function ActivityManagementPage() {
                       </label>
                       <div className="text-gray-900">{selectedActivity.trainerName}</div>
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         活動地點
                       </label>
                       <div className="text-gray-900">{selectedActivity.location}</div>
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         開始時間
                       </label>
                       <div className="text-gray-900">{formatDateTime(selectedActivity.startTime)}</div>
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         結束時間
                       </label>
                       <div className="text-gray-900">{formatDateTime(selectedActivity.endTime)}</div>
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         持續時間
                       </label>
                       <div className="text-gray-900 font-semibold text-blue-600">{selectedActivity.duration}h</div>
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         參與人數
@@ -349,7 +356,7 @@ export default function ActivityManagementPage() {
                     <h3 className="text-lg font-semibold text-gray-900">參與者列表</h3>
                     <span className="text-sm text-gray-600">共 {selectedActivity.participants.length} 位參與者</span>
                   </div>
-                  
+
                   <div className="overflow-y-auto max-h-64">
                     {selectedActivity.participants.length === 0 ? (
                       <div className="flex items-center justify-center h-32 text-gray-500">
@@ -388,6 +395,13 @@ export default function ActivityManagementPage() {
                 </svg>
               </button>
             </div>
+
+            {/* Modal Internal Error Message */}
+            {error && (
+              <div className="mb-4 bg-red-50 border border-red-200 rounded-md p-3">
+                <p className="text-sm text-red-600">{error}</p>
+              </div>
+            )}
 
             <form onSubmit={handleAddSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -463,18 +477,24 @@ export default function ActivityManagementPage() {
                 <label htmlFor="location" className="block text-sm font-medium text-gray-700 mb-1">
                   活動地點 <span className="text-red-500">*</span>
                 </label>
-                <CustomSelect
-                  value={addFormData.location}
-                  onChange={(value) => handleAddFormChange({ target: { name: 'location', value } } as React.ChangeEvent<HTMLSelectElement>)}
-                  options={[
-                    { value: '', label: '選擇地點' },
-                    { value: '灣仔', label: '灣仔' },
-                    { value: '黃大仙', label: '黃大仙' },
-                    { value: '石門', label: '石門' },
-                  ]}
-                  placeholder="選擇地點"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    type="text"
+                    id="location"
+                    name="location"
+                    value={addFormData.location}
+                    onChange={handleAddFormChange}
+                    list="location-options"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="選擇或輸入活動地點"
+                    required
+                  />
+                  <datalist id="location-options">
+                    <option value="灣仔" />
+                    <option value="黃大仙" />
+                    <option value="石門" />
+                  </datalist>
+                </div>
               </div>
 
               <div>
