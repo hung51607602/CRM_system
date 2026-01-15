@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import QRCode from 'qrcode';
 import CustomSelect from '@/app/components/CustomSelect';
-import { AVAILABLE_LOCATIONS } from '@/utils/constants';
+import { AVAILABLE_LOCATIONS, getLocationDisplay } from '@/utils/constants';
 
 interface Member {
   _id: string;
@@ -414,7 +414,7 @@ export default function AddAttendancePage() {
                 { value: '', label: '請選擇運動班' },
                 ...activities.map((activity) => ({
                   value: activity._id,
-                  label: `${activity.activityName} - ${activity.trainerName} (${new Date(activity.startTime).toLocaleDateString('zh-CN')})`,
+                  label: `${activity.activityName} - ${activity.trainerName} - ${getLocationDisplay(activity.location)} (${new Date(activity.startTime).toLocaleDateString('zh-CN')})`,
                 })),
               ]}
               placeholder="請選擇運動班"

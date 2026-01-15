@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useScrollOptimization } from '@/hooks/useScrollOptimization';
 import CustomSelect from '@/app/components/CustomSelect';
-import { AVAILABLE_LOCATIONS } from '@/utils/constants';
+import { AVAILABLE_LOCATIONS, getLocationDisplay } from '@/utils/constants';
 
 interface Activity {
   _id: string;
@@ -262,7 +262,7 @@ export default function ActivityManagementPage() {
                     >
                       <div className="font-medium">{activity.activityName}</div>
                       <div className="text-sm text-gray-500">
-                        教練: {activity.trainerName} · {activity.location}
+                        教練: {activity.trainerName} · {getLocationDisplay(activity.location)}
                       </div>
                       <div className="text-xs text-gray-400">
                         {formatDateTime(activity.startTime)}
@@ -306,7 +306,7 @@ export default function ActivityManagementPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         活動地點
                       </label>
-                      <div className="text-gray-900">{selectedActivity.location}</div>
+                      <div className="text-gray-900">{getLocationDisplay(selectedActivity.location)}</div>
                     </div>
 
                     <div>

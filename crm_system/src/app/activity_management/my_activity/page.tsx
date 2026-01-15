@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useScrollOptimization } from '@/hooks/useScrollOptimization';
+import { getLocationDisplay } from '@/utils/constants';
 
 interface Activity {
   _id: string;
@@ -136,7 +137,7 @@ export default function MyActivityPage() {
                     >
                       <div className="font-medium">{activity.activityName}</div>
                       <div className="text-sm text-gray-500">
-                        {activity.location}
+                        {getLocationDisplay(activity.location)}
                       </div>
                       <div className="text-xs text-gray-400">
                         {formatDateTime(activity.startTime)}
@@ -173,7 +174,7 @@ export default function MyActivityPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         活動地點
                       </label>
-                      <div className="text-gray-900">{selectedActivity.location}</div>
+                      <div className="text-gray-900">{getLocationDisplay(selectedActivity.location)}</div>
                     </div>
 
                     <div>
