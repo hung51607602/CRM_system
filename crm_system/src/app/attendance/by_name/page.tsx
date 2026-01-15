@@ -87,7 +87,7 @@ export default function AttendanceByNamePage() {
         // 顯示詳細統計
         const uniqueNames = new Set(data.data.map((r: AttendanceRecord) => r.name));
         console.log(`獨特參與者: ${uniqueNames.size} 人`);
-        
+
         // 如果用户是教练且没有地区權限，顯示提示信息
         if (data.data.length === 0 && data.message) {
           console.info(data.message);
@@ -136,11 +136,7 @@ export default function AttendanceByNamePage() {
   }, [fetchAttendanceRecords, fetchMembers]);
 
   // 當會員數據和出席記錄都加載完成時，處理參與者摘要
-  useEffect(() => {
-    if (attendanceRecords.length >= 0 && members.length >= 0) {
-      processPersonSummaries(attendanceRecords);
-    }
-  }, [attendanceRecords, members]);
+
 
   // 創建會員查找表 - 移到組件頂層
   const memberLookup = useMemo(() => {
@@ -175,7 +171,7 @@ export default function AttendanceByNamePage() {
     const summaries = Array.from(personMap.values()).map(person => {
       // 使用查找表快速找到會員信息
       const member = memberLookup.get(person.name) ||
-                    memberLookup.get(person.contactInfo);
+        memberLookup.get(person.contactInfo);
 
       if (member) {
         person.memberInfo = {
@@ -195,6 +191,13 @@ export default function AttendanceByNamePage() {
 
     setPersonSummaries(summaries);
   }, [memberLookup]);
+
+  // 當會員數據和出席記錄都加載完成時，處理參與者摘要
+  useEffect(() => {
+    if (attendanceRecords.length >= 0 && members.length >= 0) {
+      processPersonSummaries(attendanceRecords);
+    }
+  }, [attendanceRecords, members, processPersonSummaries]);
 
   // 優化搜索結果的計算
   const filteredPersons = useMemo(() => {
@@ -257,7 +260,7 @@ export default function AttendanceByNamePage() {
             查看所有參與者的出席統計，包括會員類別、套票信息和本月加入狀態
           </p>
         </div>
-        
+
         {/* 右上角操作區域 */}
         <div className="flex items-center space-x-4">
           {/* 刷新按鈕和狀態 */}
@@ -283,39 +286,39 @@ export default function AttendanceByNamePage() {
           {/* 搜索框 */}
           <div className="relative">
             <input
-            type="text"
-            placeholder="搜索姓名或聯絡方式..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Escape') {
-                setSearchTerm('');
-                e.currentTarget.blur();
-              }
-            }}
-            className="w-64 px-4 py-2 pl-10 pr-10 text-sm border border-gray-300 rounded-full bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:shadow-md"
-          />
-          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-            <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-          </div>
-          {searchTerm && (
-            <button
-              onClick={() => setSearchTerm('')}
-              className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              type="text"
+              placeholder="搜索姓名或聯絡方式..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  setSearchTerm('');
+                  e.currentTarget.blur();
+                }
+              }}
+              className="w-64 px-4 py-2 pl-10 pr-10 text-sm border border-gray-300 rounded-full bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:shadow-md"
+            />
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-            </button>
-          )}
-          {/* 搜索結果提示 */}
-          {searchTerm && (
-            <div className="absolute top-full mt-2 right-0 bg-white border border-gray-200 rounded-lg shadow-lg px-3 py-2 text-xs text-gray-600 whitespace-nowrap z-10">
-              找到 <span className="font-semibold text-blue-600">{filteredPersons.length}</span> 位參與者
             </div>
-          )}
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm('')}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+            {/* 搜索結果提示 */}
+            {searchTerm && (
+              <div className="absolute top-full mt-2 right-0 bg-white border border-gray-200 rounded-lg shadow-lg px-3 py-2 text-xs text-gray-600 whitespace-nowrap z-10">
+                找到 <span className="font-semibold text-blue-600">{filteredPersons.length}</span> 位參與者
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -354,7 +357,7 @@ export default function AttendanceByNamePage() {
             )}
           </h2>
         </div>
-        
+
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -413,11 +416,10 @@ export default function AttendanceByNamePage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
                         {person.memberInfo ? (
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            isJoinedThisMonth(person.memberInfo.joinDate)
-                              ? 'bg-blue-100 text-blue-800'
-                              : 'bg-gray-100 text-gray-800'
-                          }`}>
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${isJoinedThisMonth(person.memberInfo.joinDate)
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-gray-100 text-gray-800'
+                            }`}>
                             {isJoinedThisMonth(person.memberInfo.joinDate) ? '是' : '否'}
                           </span>
                         ) : (
@@ -428,11 +430,10 @@ export default function AttendanceByNamePage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
                         {person.memberInfo ? (
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            person.memberInfo.role === 'premium-member'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-orange-100 text-orange-800'
-                          }`}>
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${person.memberInfo.role === 'premium-member'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-orange-100 text-orange-800'
+                            }`}>
                             {getMemberTypeDisplay(person.memberInfo.role)}
                           </span>
                         ) : (
@@ -466,11 +467,10 @@ export default function AttendanceByNamePage() {
                       <div className="text-sm text-gray-900">
                         {person.memberInfo ? (
                           <div className="flex flex-col items-center">
-                            <span className={`inline-flex px-3 py-1 text-sm font-bold rounded-full ${
-                              person.memberInfo.quota > 0
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-red-100 text-red-800'
-                            }`}>
+                            <span className={`inline-flex px-3 py-1 text-sm font-bold rounded-full ${person.memberInfo.quota > 0
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-red-100 text-red-800'
+                              }`}>
                               {person.memberInfo.quota}
                             </span>
                             <span className="text-xs text-gray-500 mt-1">

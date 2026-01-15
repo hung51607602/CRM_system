@@ -9,7 +9,7 @@ let isInitialized = false;
 
 export function initializeMobileClickFix() {
   if (typeof window === 'undefined' || isInitialized) return;
-  
+
   const isMobile = window.innerWidth <= 768;
   if (!isMobile) return;
 
@@ -36,11 +36,11 @@ export function initializeMobileClickFix() {
         element.dataset.mobileOptimized = 'true';
 
         // 添加觸摸事件優化（不替換元素）
-        element.addEventListener('touchstart', (e) => {
+        element.addEventListener('touchstart', () => {
           element.style.opacity = '0.8';
         }, { passive: true });
 
-        element.addEventListener('touchend', (e) => {
+        element.addEventListener('touchend', () => {
           element.style.opacity = '';
         }, { passive: true });
       }
@@ -101,16 +101,16 @@ export function initializeMobileClickFix() {
 // 手動修復特定元素
 export function fixElementClick(element: HTMLElement) {
   if (typeof window === 'undefined') return;
-  
+
   const isMobile = window.innerWidth <= 768;
   if (!isMobile) return;
 
   element.style.pointerEvents = 'auto';
   element.style.touchAction = 'manipulation';
-  
+
   if (!element.dataset.mobileFixed) {
     element.dataset.mobileFixed = 'true';
-    
+
     element.addEventListener('touchend', (e) => {
       e.preventDefault();
       setTimeout(() => {

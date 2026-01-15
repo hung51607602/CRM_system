@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useScrollOptimization } from '@/hooks/useScrollOptimization';
 import AddAccountModal from '@/app/components/AddAccountModal';
 import DeleteAccountModal from '@/app/components/DeleteAccountModal';
@@ -35,13 +35,32 @@ export default function TrainerManagementPage() {
   const [accountToEdit, setAccountToEdit] = useState<AccountDetail | null>(null);
   const [error, setError] = useState('');
 
+  // 獲取帳戶详细信息
+  const handleSelectAccount = useCallback(async (accountId: string) => {
+    try {
+      setIsLoadingDetail(true);
+      const response = await fetch(`/api/accounts/${accountId}`);
+      const result = await response.json();
+
+      if (result.success) {
+        setSelectedAccount(result.data);
+      } else {
+        setError('獲取帳戶詳情失敗');
+      }
+    } catch {
+      setError('網絡錯誤，請重试');
+    } finally {
+      setIsLoadingDetail(false);
+    }
+  }, []);
+
   // 獲取教練列表
-  const fetchTrainerAccounts = async () => {
+  const fetchTrainerAccounts = useCallback(async () => {
     try {
       setIsLoadingAccounts(true);
       const response = await fetch('/api/accounts?role=trainer');
       const result = await response.json();
-      
+
       if (result.success) {
         setAccounts(result.data);
         // 如果有帳戶且没有选中的帳戶，默认选中第一个
@@ -56,26 +75,7 @@ export default function TrainerManagementPage() {
     } finally {
       setIsLoadingAccounts(false);
     }
-  };
-
-  // 獲取帳戶详细信息
-  const handleSelectAccount = async (accountId: string) => {
-    try {
-      setIsLoadingDetail(true);
-      const response = await fetch(`/api/accounts/${accountId}`);
-      const result = await response.json();
-      
-      if (result.success) {
-        setSelectedAccount(result.data);
-      } else {
-        setError('獲取帳戶詳情失敗');
-      }
-    } catch {
-      setError('網絡錯誤，請重试');
-    } finally {
-      setIsLoadingDetail(false);
-    }
-  };
+  }, [selectedAccount, handleSelectAccount]);
 
   // 添加帳戶成功回调
   const handleAddSuccess = () => {
@@ -121,7 +121,7 @@ export default function TrainerManagementPage() {
 
   useEffect(() => {
     fetchTrainerAccounts();
-  }, []);
+  }, [fetchTrainerAccounts]);
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -171,7 +171,7 @@ export default function TrainerManagementPage() {
               <h2 className="text-lg font-semibold text-gray-900">教練列表</h2>
               <p className="text-sm text-gray-600">共 {accounts.length} 個教練</p>
             </div>
-            
+
             <div className="overflow-y-auto h-80">
               {isLoadingAccounts ? (
                 <div className="flex items-center justify-center h-full">
@@ -187,11 +187,10 @@ export default function TrainerManagementPage() {
                     <button
                       key={account._id}
                       onClick={() => handleSelectAccount(account._id)}
-                      className={`w-full text-left p-3 rounded-lg transition-colors ${
-                        selectedAccount?._id === account._id
-                          ? 'bg-green-50 border border-green-200 text-green-900'
-                          : 'hover:bg-gray-50 border border-transparent'
-                      }`}
+                      className={`w-full text-left p-3 rounded-lg transition-colors ${selectedAccount?._id === account._id
+                        ? 'bg-green-50 border border-green-200 text-green-900'
+                        : 'hover:bg-gray-50 border border-transparent'
+                        }`}
                     >
                       <div className="font-medium">{account.username}</div>
                       <div className="text-sm text-gray-500">
@@ -209,7 +208,7 @@ export default function TrainerManagementPage() {
             <div className="p-4 bg-gray-50 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">帳戶詳情</h2>
             </div>
-            
+
             <div className="p-6">
               {!selectedAccount ? (
                 <div className="flex items-center justify-center h-64 text-gray-500">
@@ -303,7 +302,7 @@ export default function TrainerManagementPage() {
         onSuccess={handleAddSuccess}
         defaultRole="trainer"
       />
-      
+
       <DeleteAccountModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
@@ -311,7 +310,7 @@ export default function TrainerManagementPage() {
         account={accountToDelete}
         currentRole="trainer"
       />
-      
+
       <EditAccountModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}

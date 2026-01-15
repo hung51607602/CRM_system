@@ -51,7 +51,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<Pa
 
     // 處理配額變更（支持正數增加和負數減少）
     const currentAddedTickets = account.addedTickets || 0;
-    const currentInitialTickets = account.initialTickets || 0;
+
     const currentUsedTickets = account.usedTickets || 0;
     const currentQuota = account.quota || 0;
 
@@ -103,7 +103,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<Pa
 
     const operation = quota >= 0 ? '增加' : '減少';
     const amount = Math.abs(quota);
-    
+
     return NextResponse.json({
       success: true,
       data: updatedAccount,

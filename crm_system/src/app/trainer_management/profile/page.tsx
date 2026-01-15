@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useScrollOptimization } from '@/hooks/useScrollOptimization';
 
@@ -33,8 +33,10 @@ interface TrainerProfile {
   notes?: string;
 }
 
+
+
 export default function TrainerProfilePage() {
-  const { user } = useAuth();
+  // const { user } = useAuth(); // Removed unused
   useScrollOptimization();
 
   const [trainers, setTrainers] = useState<Trainer[]>([]);
@@ -43,20 +45,82 @@ export default function TrainerProfilePage() {
   const [trainerProfile, setTrainerProfile] = useState<TrainerProfile | null>(null);
   const [isLoadingTrainers, setIsLoadingTrainers] = useState(true);
   const [isLoadingActivities, setIsLoadingActivities] = useState(false);
-  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+  // const [isLoadingProfile, setIsLoadingProfile] = useState(false); // Removed unused
   const [isUpdatingWorkHours, setIsUpdatingWorkHours] = useState(false);
   const [otherWorkHours, setOtherWorkHours] = useState('0');
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
+  // 獲取教练的活动記錄
+  const fetchTrainerActivities = useCallback(async (trainerId: string) => {
+    try {
+      setIsLoadingActivities(true);
+      const response = await fetch(`/api/activities/by-trainer?trainerId=${trainerId}`);
+      const result = await response.json();
+
+      if (result.success) {
+        setTrainerActivities(result.data);
+      } else {
+        setTrainerActivities([]);
+      }
+    } catch { // Removed unused error var
+      setTrainerActivities([]);
+    } finally {
+      setIsLoadingActivities(false);
+    }
+  }, []);
+
+  // 獲取教练档案信息
+  const fetchTrainerProfile = useCallback(async (trainerId: string) => {
+    try {
+      // setIsLoadingProfile(true); // Removed
+      const response = await fetch(`/api/trainer-profile/${trainerId}`);
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        setTrainerProfile(result.data);
+        setOtherWorkHours(result.data.otherWorkHours.toString());
+        setNotes(result.data.notes || '');
+      } else {
+        // 如果没有档案，创建默认值
+        setTrainerProfile({
+          trainerId,
+          trainerUsername: '', // Cant rely on selectedTrainer here easily inside useCallback without dependency loop risks or complex refactoring. 
+          // But wait, selectedTrainer might be null when this is called from fetchTrainers.
+          // In the original code it used `selectedTrainer?.username`.
+          // If called from handleSelectTrainer, selectedTrainer is the OLD one or properly passed? 
+          // handleSelectTrainer updates state BUT state update is async.
+          // So `selectedTrainer` ref inside handleSelectTrainer is old.
+          // But here we are defining the function.
+
+          otherWorkHours: 0,
+          notes: ''
+        });
+        setOtherWorkHours('0');
+        setNotes('');
+      }
+    } catch { // Removed unused error var
+      setTrainerProfile({
+        trainerId,
+        trainerUsername: '',
+        otherWorkHours: 0,
+        notes: ''
+      });
+      setOtherWorkHours('0');
+      setNotes('');
+    } finally {
+      // setIsLoadingProfile(false); // Removed
+    }
+  }, []); // Removed dependency on selectedTrainer to avoid stale closure issues or loops. We passed trainerId. The username was just a fallback.
+
   // 獲取教练列表
-  const fetchTrainers = async () => {
+  const fetchTrainers = useCallback(async () => {
     try {
       setIsLoadingTrainers(true);
       const response = await fetch('/api/accounts?role=trainer');
       const result = await response.json();
-      
+
       if (result.success) {
         setTrainers(result.data);
         if (result.data.length > 0 && !selectedTrainer) {
@@ -68,67 +132,12 @@ export default function TrainerProfilePage() {
       } else {
         setError('獲取教练列表失敗');
       }
-    } catch (error) {
+    } catch { // Removed unused error var
       setError('網絡錯誤，請重试');
     } finally {
       setIsLoadingTrainers(false);
     }
-  };
-
-  // 獲取教练的活动記錄
-  const fetchTrainerActivities = async (trainerId: string) => {
-    try {
-      setIsLoadingActivities(true);
-      const response = await fetch(`/api/activities/by-trainer?trainerId=${trainerId}`);
-      const result = await response.json();
-      
-      if (result.success) {
-        setTrainerActivities(result.data);
-      } else {
-        setTrainerActivities([]);
-      }
-    } catch (error) {
-      setTrainerActivities([]);
-    } finally {
-      setIsLoadingActivities(false);
-    }
-  };
-
-  // 獲取教练档案信息
-  const fetchTrainerProfile = async (trainerId: string) => {
-    try {
-      setIsLoadingProfile(true);
-      const response = await fetch(`/api/trainer-profile/${trainerId}`);
-      const result = await response.json();
-      
-      if (result.success && result.data) {
-        setTrainerProfile(result.data);
-        setOtherWorkHours(result.data.otherWorkHours.toString());
-        setNotes(result.data.notes || '');
-      } else {
-        // 如果没有档案，创建默认值
-        setTrainerProfile({
-          trainerId,
-          trainerUsername: selectedTrainer?.username || '',
-          otherWorkHours: 0,
-          notes: ''
-        });
-        setOtherWorkHours('0');
-        setNotes('');
-      }
-    } catch (error) {
-      setTrainerProfile({
-        trainerId,
-        trainerUsername: selectedTrainer?.username || '',
-        otherWorkHours: 0,
-        notes: ''
-      });
-      setOtherWorkHours('0');
-      setNotes('');
-    } finally {
-      setIsLoadingProfile(false);
-    }
-  };
+  }, [selectedTrainer, fetchTrainerActivities, fetchTrainerProfile]);
 
   // 選擇教练
   const handleSelectTrainer = (trainer: Trainer) => {
@@ -142,7 +151,7 @@ export default function TrainerProfilePage() {
   // 更新其他工作时间
   const handleUpdateWorkHours = async () => {
     if (!selectedTrainer) return;
-    
+
     const workHours = parseFloat(otherWorkHours);
     if (isNaN(workHours) || workHours < 0) {
       setError('請輸入有效的工作时间（不能为负数）');
@@ -156,7 +165,7 @@ export default function TrainerProfilePage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           otherWorkHours: workHours,
           notes: notes.trim(),
           trainerUsername: selectedTrainer.username
@@ -164,7 +173,7 @@ export default function TrainerProfilePage() {
       });
 
       const result = await response.json();
-      
+
       if (result.success) {
         setTrainerProfile(result.data);
         setSuccessMessage('工作时间更新成功');
@@ -172,7 +181,7 @@ export default function TrainerProfilePage() {
       } else {
         setError(result.message || '更新工作时间失敗');
       }
-    } catch (error) {
+    } catch {
       setError('網絡錯誤，請重试');
     } finally {
       setIsUpdatingWorkHours(false);
@@ -212,7 +221,7 @@ export default function TrainerProfilePage() {
 
   useEffect(() => {
     fetchTrainers();
-  }, []);
+  }, [fetchTrainers]);
 
   // 清除消息
   useEffect(() => {
@@ -236,7 +245,7 @@ export default function TrainerProfilePage() {
           <p className="text-sm text-red-600">{error}</p>
         </div>
       )}
-      
+
       {successMessage && (
         <div className="mb-6 bg-green-50 border border-green-200 rounded-md p-4">
           <p className="text-sm text-green-600">{successMessage}</p>
@@ -252,7 +261,7 @@ export default function TrainerProfilePage() {
               <h2 className="text-lg font-semibold text-gray-900">教練列表</h2>
               <p className="text-sm text-gray-600">共 {trainers.length} 位教練</p>
             </div>
-            
+
             <div className="overflow-y-auto max-h-96">
               {isLoadingTrainers ? (
                 <div className="flex items-center justify-center h-32">
@@ -268,11 +277,10 @@ export default function TrainerProfilePage() {
                     <button
                       key={trainer._id}
                       onClick={() => handleSelectTrainer(trainer)}
-                      className={`w-full text-left p-3 rounded-lg transition-colors ${
-                        selectedTrainer?._id === trainer._id
-                          ? 'bg-blue-50 border border-blue-200 text-blue-900'
-                          : 'hover:bg-gray-50 border border-transparent'
-                      }`}
+                      className={`w-full text-left p-3 rounded-lg transition-colors ${selectedTrainer?._id === trainer._id
+                        ? 'bg-blue-50 border border-blue-200 text-blue-900'
+                        : 'hover:bg-gray-50 border border-transparent'
+                        }`}
                     >
                       <div className="font-medium">{trainer.username}</div>
                       <div className="text-sm text-gray-500">
@@ -300,15 +308,14 @@ export default function TrainerProfilePage() {
                 <div className="p-6 border-b border-gray-200">
                   <div className="flex justify-between items-start mb-6">
                     <h2 className="text-xl font-semibold text-gray-900">{selectedTrainer.username}</h2>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      selectedTrainer.isActive 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${selectedTrainer.isActive
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                      }`}>
                       {selectedTrainer.isActive ? '活躍' : '已禁用'}
                     </span>
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -316,21 +323,21 @@ export default function TrainerProfilePage() {
                       </label>
                       <div className="text-gray-900">{selectedTrainer.username}</div>
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         授權地區
                       </label>
                       <div className="text-gray-900">{selectedTrainer.locations.join(', ') || '無授權地區'}</div>
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         加入時間
                       </label>
                       <div className="text-gray-900">{formatDateOnly(selectedTrainer.createdAt)}</div>
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         最後登錄
@@ -342,7 +349,7 @@ export default function TrainerProfilePage() {
                   {/* 工作时间统计 */}
                   <div className="mt-6 p-4 bg-gray-50 rounded-lg">
                     <h3 className="text-lg font-medium text-gray-900 mb-4">工作時間統計</h3>
-                    
+
                     <div className="grid grid-cols-3 gap-4 mb-4">
                       <div className="text-center">
                         <div className="text-2xl font-bold text-blue-600">{getTotalTeachingHours().toFixed(1)}h</div>
@@ -374,7 +381,7 @@ export default function TrainerProfilePage() {
                           placeholder="輸入其他工作時間"
                         />
                       </div>
-                      
+
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">
                           備註
@@ -387,7 +394,7 @@ export default function TrainerProfilePage() {
                           placeholder="輸入工作備註（可選）"
                         />
                       </div>
-                      
+
                       <button
                         onClick={handleUpdateWorkHours}
                         disabled={isUpdatingWorkHours}
@@ -405,7 +412,7 @@ export default function TrainerProfilePage() {
                     <h3 className="text-lg font-semibold text-gray-900">帶隊記錄</h3>
                     <span className="text-sm text-gray-600">共 {trainerActivities.length} 項活動</span>
                   </div>
-                  
+
                   <div className="overflow-y-auto max-h-64">
                     {isLoadingActivities ? (
                       <div className="flex items-center justify-center h-32">

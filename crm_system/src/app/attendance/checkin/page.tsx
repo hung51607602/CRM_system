@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import QRCode from 'qrcode';
@@ -32,7 +32,7 @@ export default function AddAttendancePage() {
   const router = useRouter();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   const [availableLocations, setAvailableLocations] = useState<string[]>([]);
   const [activities, setActivities] = useState<Activity[]>([]);
   const [, setIsLoadingActivities] = useState(true);
@@ -58,7 +58,6 @@ export default function AddAttendancePage() {
   const [qrCode, setQrCode] = useState<string>('');
   const [showQrCode, setShowQrCode] = useState(false);
   const [isGeneratingQr, setIsGeneratingQr] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // 所有可用的地区
   const ALL_LOCATIONS = useMemo(() => ['灣仔', '黃大仙', '石門'], []);
@@ -69,7 +68,7 @@ export default function AddAttendancePage() {
       setIsLoadingActivities(true);
       const response = await fetch('/api/activities');
       const result = await response.json();
-      
+
       if (result.success) {
         setActivities(result.data);
       }
@@ -150,7 +149,7 @@ export default function AddAttendancePage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    
+
     // 特殊处理活动選擇
     if (name === 'activityId') {
       const selectedActivity = activities.find(activity => activity._id === value);
@@ -234,7 +233,7 @@ export default function AddAttendancePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // 檢查會員验证状态
     if (!memberValidation.member) {
       alert('❌ 請先確認會員信息有效');
@@ -249,8 +248,8 @@ export default function AddAttendancePage() {
     setIsSubmitting(true);
 
     try {
-      const selectedActivity = activities.find(a => a._id === formData.activityId);
-      
+      // const selectedActivity = activities.find(a => a._id === formData.activityId);
+
       const response = await fetch('/api/attendance', {
         method: 'POST',
         headers: {
@@ -281,11 +280,11 @@ export default function AddAttendancePage() {
     }
   };
 
-  const isFormValid = formData.name.trim() && formData.contactInfo.trim() && 
-                     formData.location.trim() && formData.activityId.trim() &&
-                     availableLocations.length > 0 && 
-                     memberValidation.member && 
-                     !memberValidation.error;
+  const isFormValid = formData.name.trim() && formData.contactInfo.trim() &&
+    formData.location.trim() && formData.activityId.trim() &&
+    availableLocations.length > 0 &&
+    memberValidation.member &&
+    !memberValidation.error;
 
   return (
     <div>
@@ -345,7 +344,7 @@ export default function AddAttendancePage() {
           {(formData.name.trim() && formData.contactInfo.trim()) && (
             <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
               <h3 className="text-sm font-medium text-gray-700 mb-2">會員驗證狀態</h3>
-              
+
               {memberValidation.isValidating ? (
                 <div className="flex items-center text-blue-600">
                   <svg className="animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
@@ -517,9 +516,9 @@ export default function AddAttendancePage() {
             </div>
             <div className="px-6 py-4 text-center">
               <div className="mb-4">
-                <img 
-                  src={qrCode} 
-                  alt="簽到二維碼" 
+                <img
+                  src={qrCode}
+                  alt="簽到二維碼"
                   className="mx-auto border border-gray-200 rounded-lg"
                 />
               </div>

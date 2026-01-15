@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useScrollOptimization } from '@/hooks/useScrollOptimization';
 
@@ -29,7 +29,7 @@ export default function MyActivityPage() {
   const [error, setError] = useState('');
 
   // 獲取教练的活动列表
-  const fetchMyActivities = async () => {
+  const fetchMyActivities = useCallback(async () => {
     if (!user || user.role !== 'trainer') {
       setError('您没有權限訪問此页面');
       return;
@@ -39,7 +39,7 @@ export default function MyActivityPage() {
       setIsLoadingActivities(true);
       const response = await fetch(`/api/activities/by-trainer?trainerId=${user.id}`);
       const result = await response.json();
-      
+
       if (result.success) {
         setActivities(result.data);
         if (result.data.length > 0 && !selectedActivity) {
@@ -53,7 +53,7 @@ export default function MyActivityPage() {
     } finally {
       setIsLoadingActivities(false);
     }
-  };
+  }, [user, selectedActivity]);
 
   // 選擇活动
   const handleSelectActivity = (activity: Activity) => {
@@ -78,7 +78,7 @@ export default function MyActivityPage() {
     if (user && user.role === 'trainer') {
       fetchMyActivities();
     }
-  }, [user]);
+  }, [user, fetchMyActivities]);
 
   // 檢查權限
   if (!user || user.role !== 'trainer') {
@@ -113,7 +113,7 @@ export default function MyActivityPage() {
               <h2 className="text-lg font-semibold text-gray-900">活動列表</h2>
               <p className="text-sm text-gray-600">共 {activities.length} 個活動</p>
             </div>
-            
+
             <div className="overflow-y-auto max-h-96">
               {isLoadingActivities ? (
                 <div className="flex items-center justify-center h-32">
@@ -129,11 +129,10 @@ export default function MyActivityPage() {
                     <button
                       key={activity._id}
                       onClick={() => handleSelectActivity(activity)}
-                      className={`w-full text-left p-3 rounded-lg transition-colors ${
-                        selectedActivity?._id === activity._id
-                          ? 'bg-blue-50 border border-blue-200 text-blue-900'
-                          : 'hover:bg-gray-50 border border-transparent'
-                      }`}
+                      className={`w-full text-left p-3 rounded-lg transition-colors ${selectedActivity?._id === activity._id
+                        ? 'bg-blue-50 border border-blue-200 text-blue-900'
+                        : 'hover:bg-gray-50 border border-transparent'
+                        }`}
                     >
                       <div className="font-medium">{activity.activityName}</div>
                       <div className="text-sm text-gray-500">
@@ -161,15 +160,14 @@ export default function MyActivityPage() {
                 <div className="p-6 border-b border-gray-200">
                   <div className="flex justify-between items-start mb-6">
                     <h2 className="text-xl font-semibold text-gray-900">{selectedActivity.activityName}</h2>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      selectedActivity.isActive 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${selectedActivity.isActive
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                      }`}>
                       {selectedActivity.isActive ? '進行中' : '已結束'}
                     </span>
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -177,28 +175,28 @@ export default function MyActivityPage() {
                       </label>
                       <div className="text-gray-900">{selectedActivity.location}</div>
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         持續時間
                       </label>
                       <div className="text-gray-900 font-semibold text-blue-600">{selectedActivity.duration}h</div>
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         開始時間
                       </label>
                       <div className="text-gray-900">{formatDateTime(selectedActivity.startTime)}</div>
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         結束時間
                       </label>
                       <div className="text-gray-900">{formatDateTime(selectedActivity.endTime)}</div>
                     </div>
-                    
+
                     <div className="col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         參與人數
@@ -225,7 +223,7 @@ export default function MyActivityPage() {
                     <h3 className="text-lg font-semibold text-gray-900">參與者列表</h3>
                     <span className="text-sm text-gray-600">共 {selectedActivity.participants.length} 位參與者</span>
                   </div>
-                  
+
                   <div className="overflow-y-auto max-h-64">
                     {selectedActivity.participants.length === 0 ? (
                       <div className="flex items-center justify-center h-32 text-gray-500">

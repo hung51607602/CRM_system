@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useScrollOptimization } from '@/hooks/useScrollOptimization';
 import CustomSelect from '@/app/components/CustomSelect';
 
@@ -51,7 +50,7 @@ export default function ActivityManagementPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // 獲取活动列表
-  const fetchActivities = async () => {
+  const fetchActivities = useCallback(async () => {
     try {
       setIsLoadingActivities(true);
       const response = await fetch('/api/activities');
@@ -70,10 +69,10 @@ export default function ActivityManagementPage() {
     } finally {
       setIsLoadingActivities(false);
     }
-  };
+  }, [selectedActivity]);
 
   // 獲取教练列表
-  const fetchTrainers = async () => {
+  const fetchTrainers = useCallback(async () => {
     try {
       setIsLoadingTrainers(true);
       const response = await fetch('/api/accounts?role=trainer');
@@ -89,7 +88,7 @@ export default function ActivityManagementPage() {
     } finally {
       setIsLoadingTrainers(false);
     }
-  };
+  }, []);
 
   // 選擇活动
   const handleSelectActivity = (activity: Activity) => {
@@ -187,7 +186,7 @@ export default function ActivityManagementPage() {
   useEffect(() => {
     fetchActivities();
     fetchTrainers();
-  }, []);
+  }, [fetchActivities, fetchTrainers]);
 
   // 清除消息
   useEffect(() => {

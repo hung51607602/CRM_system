@@ -56,8 +56,8 @@ export const getMobileButtonClass = (baseClass: string): string => {
     'duration-100'
   ];
 
-  return isMobileDevice() 
-    ? `${baseClass} ${mobileOptimizations.join(' ')}` 
+  return isMobileDevice()
+    ? `${baseClass} ${mobileOptimizations.join(' ')}`
     : baseClass;
 };
 
@@ -70,8 +70,8 @@ export const getMobileInputClass = (baseClass: string): string => {
     'leading-normal'
   ];
 
-  return isMobileDevice() 
-    ? `${baseClass} ${mobileOptimizations.join(' ')}` 
+  return isMobileDevice()
+    ? `${baseClass} ${mobileOptimizations.join(' ')}`
     : baseClass;
 };
 
@@ -139,7 +139,7 @@ export const addMobileEventListeners = (
   onClick: () => void
 ): (() => void) => {
   if (!element || typeof window === 'undefined') {
-    return () => {};
+    return () => { };
   }
 
   const handleClick = (event: Event) => {
@@ -147,7 +147,7 @@ export const addMobileEventListeners = (
     onClick();
   };
 
-  const handleTouchStart = (event: TouchEvent) => {
+  const handleTouchStart = () => {
     // 添加觸摸開始的視覺反饋
     element.style.transform = 'scale(0.95)';
     element.style.transition = 'transform 0.1s ease';
@@ -182,7 +182,7 @@ export const addMobileEventListeners = (
  */
 export const getSafeAreaPadding = (): string => {
   if (!isMobileDevice()) return '';
-  
+
   // iOS 安全區域支持
   return 'pb-safe pt-safe pl-safe pr-safe';
 };
@@ -192,6 +192,6 @@ export const getSafeAreaPadding = (): string => {
  */
 export const getMobileModalClass = (): string => {
   if (!isMobileDevice()) return '';
-  
+
   return 'rounded-t-lg rounded-b-none fixed bottom-0 left-0 right-0 max-h-[90vh] overflow-auto';
 };

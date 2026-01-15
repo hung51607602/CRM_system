@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useScrollOptimization } from '@/hooks/useScrollOptimization';
 import { useMobileDetection } from '@/hooks/useMobileDetection';
@@ -40,36 +40,13 @@ export default function MemberManagementPage() {
   const [error, setError] = useState('');
   const [showDetails, setShowDetails] = useState(!isMobile); // 移动端默认顯示列表，桌面端默认顯示詳情
 
-  // 獲取會員列表
-  const fetchMemberAccounts = async () => {
-    try {
-      setIsLoadingAccounts(true);
-      const response = await fetch('/api/accounts?role=member');
-      const result = await response.json();
-      
-      if (result.success) {
-        setAccounts(result.data);
-        // 如果有帳戶且没有选中的帳戶，默认选中第一个
-        if (result.data.length > 0 && !selectedAccount) {
-          handleSelectAccount(result.data[0]._id);
-        }
-      } else {
-        setError('獲取會員列表失敗');
-      }
-    } catch {
-      setError('網絡錯誤，請重试');
-    } finally {
-      setIsLoadingAccounts(false);
-    }
-  };
-
   // 獲取帳戶详细信息
-  const handleSelectAccount = async (accountId: string) => {
+  const handleSelectAccount = useCallback(async (accountId: string) => {
     try {
       setIsLoadingDetail(true);
       const response = await fetch(`/api/accounts/${accountId}`);
       const result = await response.json();
-      
+
       if (result.success) {
         setSelectedAccount(result.data);
         // 在移动端選擇帳戶后切换到詳情视图
@@ -84,7 +61,30 @@ export default function MemberManagementPage() {
     } finally {
       setIsLoadingDetail(false);
     }
-  };
+  }, [isMobile]);
+
+  // 獲取會員列表
+  const fetchMemberAccounts = useCallback(async () => {
+    try {
+      setIsLoadingAccounts(true);
+      const response = await fetch('/api/accounts?role=member');
+      const result = await response.json();
+
+      if (result.success) {
+        setAccounts(result.data);
+        // 如果有帳戶且没有选中的帳戶，默认选中第一个
+        if (result.data.length > 0 && !selectedAccount) {
+          handleSelectAccount(result.data[0]._id);
+        }
+      } else {
+        setError('獲取會員列表失敗');
+      }
+    } catch {
+      setError('網絡錯誤，請重试');
+    } finally {
+      setIsLoadingAccounts(false);
+    }
+  }, [selectedAccount, handleSelectAccount]);
 
   // 添加帳戶成功回调
   const handleAddSuccess = () => {
@@ -130,7 +130,7 @@ export default function MemberManagementPage() {
 
   useEffect(() => {
     fetchMemberAccounts();
-  }, []);
+  }, [fetchMemberAccounts]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -206,117 +206,116 @@ export default function MemberManagementPage() {
           <div className="flex flex-col lg:flex-row min-h-96">
             {/* 左侧 - 會員列表 */}
             <div className={`w-full lg:w-1/3 lg:border-r border-gray-200 ${isMobile ? (showDetails ? 'hidden' : 'block') : 'block'}`}>
-            {!isMobile && (
-              <div className="p-4 bg-gray-50 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">會員列表</h2>
-                <p className="text-sm text-gray-600">共 {accounts.length} 個會員</p>
-              </div>
-            )}
-            
-            <div className="overflow-y-auto max-h-80 lg:h-80">
-              {isLoadingAccounts ? (
-                <div className="flex items-center justify-center h-full">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
-                </div>
-              ) : accounts.length === 0 ? (
-                <div className="flex items-center justify-center h-full text-gray-500">
-                  暫無會員帳戶
-                </div>
-              ) : (
-                <div className="space-y-1 p-2">
-                  {accounts.map((account) => (
-                    <button
-                      key={account._id}
-                      onClick={() => handleSelectAccount(account._id)}
-                      className={`w-full text-left p-3 rounded-lg transition-colors ${
-                        selectedAccount?._id === account._id
-                          ? 'bg-orange-50 border border-orange-200 text-orange-900'
-                          : 'hover:bg-gray-50 border border-transparent'
-                      }`}
-                    >
-                      <div className="font-medium">{account.username}</div>
-                      <div className="text-sm text-gray-500">
-                        {account.isActive ? '活躍' : '已禁用'} · 創建於 {formatDate(account.createdAt).split(' ')[0]}
-                      </div>
-                    </button>
-                  ))}
+              {!isMobile && (
+                <div className="p-4 bg-gray-50 border-b border-gray-200">
+                  <h2 className="text-lg font-semibold text-gray-900">會員列表</h2>
+                  <p className="text-sm text-gray-600">共 {accounts.length} 個會員</p>
                 </div>
               )}
+
+              <div className="overflow-y-auto max-h-80 lg:h-80">
+                {isLoadingAccounts ? (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
+                  </div>
+                ) : accounts.length === 0 ? (
+                  <div className="flex items-center justify-center h-full text-gray-500">
+                    暫無會員帳戶
+                  </div>
+                ) : (
+                  <div className="space-y-1 p-2">
+                    {accounts.map((account) => (
+                      <button
+                        key={account._id}
+                        onClick={() => handleSelectAccount(account._id)}
+                        className={`w-full text-left p-3 rounded-lg transition-colors ${selectedAccount?._id === account._id
+                          ? 'bg-orange-50 border border-orange-200 text-orange-900'
+                          : 'hover:bg-gray-50 border border-transparent'
+                          }`}
+                      >
+                        <div className="font-medium">{account.username}</div>
+                        <div className="text-sm text-gray-500">
+                          {account.isActive ? '活躍' : '已禁用'} · 創建於 {formatDate(account.createdAt).split(' ')[0]}
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
 
             {/* 右侧 - 帳戶詳情 */}
             <div className={`flex-1 border-t lg:border-t-0 lg:border-l border-gray-200 ${isMobile ? (showDetails ? 'block' : 'hidden') : 'block'}`}>
-            {!isMobile && (
-              <div className="p-4 bg-gray-50 border-b border-gray-200">
-                <h2 className="text-lg font-semibold text-gray-900">帳戶詳情</h2>
-              </div>
-            )}
-            
-            <div className="p-6">
-              {!selectedAccount ? (
-                <div className="flex items-center justify-center min-h-64 lg:h-64 text-gray-500">
-                  請從列表中選擇一個會員帳戶
-                </div>
-              ) : isLoadingDetail ? (
-                <div className="flex items-center justify-center min-h-64 lg:h-64">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      帳號名
-                    </label>
-                    <div className="text-lg font-semibold text-gray-900">
-                      {selectedAccount.username}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      密碼
-                    </label>
-                    <div className="font-mono text-gray-600 bg-gray-50 p-3 rounded-md">
-                      {selectedAccount.password}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      角色
-                    </label>
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800">
-                      {selectedAccount.role === 'member' ? '會員' : selectedAccount.role}
-                    </span>
-                  </div>
-
-
-
-                  <div className="grid grid-cols-1 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        創建時間
-                      </label>
-                      <div className="text-gray-600">
-                        {formatDate(selectedAccount.createdAt)}
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        最後登錄
-                      </label>
-                      <div className="text-gray-600">
-                        {formatDate(selectedAccount.lastLogin || '')}
-                      </div>
-                    </div>
-                  </div>
+              {!isMobile && (
+                <div className="p-4 bg-gray-50 border-b border-gray-200">
+                  <h2 className="text-lg font-semibold text-gray-900">帳戶詳情</h2>
                 </div>
               )}
+
+              <div className="p-6">
+                {!selectedAccount ? (
+                  <div className="flex items-center justify-center min-h-64 lg:h-64 text-gray-500">
+                    請從列表中選擇一個會員帳戶
+                  </div>
+                ) : isLoadingDetail ? (
+                  <div className="flex items-center justify-center min-h-64 lg:h-64">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600"></div>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        帳號名
+                      </label>
+                      <div className="text-lg font-semibold text-gray-900">
+                        {selectedAccount.username}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        密碼
+                      </label>
+                      <div className="font-mono text-gray-600 bg-gray-50 p-3 rounded-md">
+                        {selectedAccount.password}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        角色
+                      </label>
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-orange-100 text-orange-800">
+                        {selectedAccount.role === 'member' ? '會員' : selectedAccount.role}
+                      </span>
+                    </div>
+
+
+
+                    <div className="grid grid-cols-1 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          創建時間
+                        </label>
+                        <div className="text-gray-600">
+                          {formatDate(selectedAccount.createdAt)}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          最後登錄
+                        </label>
+                        <div className="text-gray-600">
+                          {formatDate(selectedAccount.lastLogin || '')}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
         </div>
       </div>
 
@@ -327,7 +326,7 @@ export default function MemberManagementPage() {
         onSuccess={handleAddSuccess}
         defaultRole="member"
       />
-      
+
       <DeleteAccountModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
@@ -335,7 +334,7 @@ export default function MemberManagementPage() {
         account={accountToDelete}
         currentRole="member"
       />
-      
+
       <EditAccountModal
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}

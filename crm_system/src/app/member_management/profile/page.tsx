@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useScrollOptimization } from '@/hooks/useScrollOptimization';
 
@@ -28,7 +28,6 @@ interface AttendanceRecord {
 }
 
 export default function MemberProfilePage() {
-  const { user } = useAuth();
   useScrollOptimization();
 
   const [members, setMembers] = useState<Member[]>([]);
@@ -41,63 +40,39 @@ export default function MemberProfilePage() {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  // 獲取會員列表
-  const fetchMembers = async () => {
-    try {
-      setIsLoadingMembers(true);
-      const response = await fetch('/api/accounts?role=member');
-      const result = await response.json();
-      
-      if (result.success) {
-        setMembers(result.data);
-        // 如果有會員且没有选中的會員，默认选中第一个
-        if (result.data.length > 0 && !selectedMember) {
-          setSelectedMember(result.data[0]);
-          fetchMemberAttendance(result.data[0]);
-        }
-      } else {
-        setError('獲取會員列表失敗');
-      }
-    } catch (error) {
-      setError('網絡錯誤，請重试');
-    } finally {
-      setIsLoadingMembers(false);
-    }
-  };
-
   // 獲取會員出席記錄
-  const fetchMemberAttendance = async (member: Member) => {
+  const fetchMemberAttendance = useCallback(async (member: Member) => {
     try {
       setIsLoadingRecords(true);
       // 通过姓名和联系方式查找出席記錄
       const response = await fetch(`/api/attendance/by-member?name=${encodeURIComponent(member.memberName)}&contact=${encodeURIComponent(member.phone)}`);
       const result = await response.json();
-      
+
       if (result.success) {
         setAttendanceRecords(result.data);
       } else {
         setAttendanceRecords([]);
       }
-    } catch (error) {
+    } catch {
       setAttendanceRecords([]);
     } finally {
       setIsLoadingRecords(false);
     }
-  };
+  }, []);
 
   // 選擇會員
-  const handleSelectMember = async (member: Member) => {
+  const handleSelectMember = useCallback(async (member: Member) => {
     setSelectedMember(member);
     setNewQuota('');
     fetchMemberAttendance(member);
     setError('');
     setSuccessMessage('');
-    
+
     // 獲取會員的最新詳細信息，確保quota是最新的
     try {
       const response = await fetch(`/api/accounts/${member._id}`);
       const result = await response.json();
-      
+
       if (result.success && result.data) {
         const updatedMember = {
           ...member,
@@ -109,24 +84,47 @@ export default function MemberProfilePage() {
         };
         setSelectedMember(updatedMember);
         // 同時更新會員列表中的數據
-        setMembers(members.map(m => m._id === member._id ? updatedMember : m));
+        setMembers(prev => prev.map(m => m._id === member._id ? updatedMember : m));
       }
     } catch (error) {
       console.error('獲取會員詳細信息失敗:', error);
       // 如果獲取失敗，仍然使用原有數據
     }
-  };
+  }, [fetchMemberAttendance]);
+
+  // 獲取會員列表
+  const fetchMembers = useCallback(async () => {
+    try {
+      setIsLoadingMembers(true);
+      const response = await fetch('/api/accounts?role=member');
+      const result = await response.json();
+
+      if (result.success) {
+        setMembers(result.data);
+        // 如果有會員且没有选中的會員，默认选中第一个
+        if (result.data.length > 0 && !selectedMember) {
+          handleSelectMember(result.data[0]);
+        }
+      } else {
+        setError('獲取會員列表失敗');
+      }
+    } catch {
+      setError('網絡錯誤，請重试');
+    } finally {
+      setIsLoadingMembers(false);
+    }
+  }, [selectedMember, handleSelectMember]);
 
   // 更新配额
   const handleUpdateQuota = async () => {
     if (!selectedMember) return;
-    
+
     const quotaValue = parseInt(newQuota);
     if (isNaN(quotaValue)) {
       setError('請輸入有效的數字');
       return;
     }
-    
+
     // 檢查減少配額後是否會變為負數
     if (quotaValue < 0 && Math.abs(quotaValue) > selectedMember.quota) {
       setError(`無法減少 ${Math.abs(quotaValue)} 個配額，當前只有 ${selectedMember.quota} 個配額`);
@@ -178,8 +176,7 @@ export default function MemberProfilePage() {
           console.error('詳細錯誤:', result.error);
         }
       }
-    } catch (error) {
-      console.error('網絡錯誤:', error);
+    } catch {
       setError('網絡錯誤，請重试');
     } finally {
       setIsUpdatingQuota(false);
@@ -200,7 +197,7 @@ export default function MemberProfilePage() {
 
   useEffect(() => {
     fetchMembers();
-  }, []);
+  }, [fetchMembers]);
 
   // 清除消息
   useEffect(() => {
@@ -224,7 +221,7 @@ export default function MemberProfilePage() {
           <p className="text-sm text-red-600">{error}</p>
         </div>
       )}
-      
+
       {successMessage && (
         <div className="mb-6 bg-green-50 border border-green-200 rounded-md p-4">
           <p className="text-sm text-green-600">{successMessage}</p>
@@ -240,7 +237,7 @@ export default function MemberProfilePage() {
               <h2 className="text-lg font-semibold text-gray-900">會員列表</h2>
               <p className="text-sm text-gray-600">共 {members.length} 位會員</p>
             </div>
-            
+
             <div className="overflow-y-auto max-h-96">
               {isLoadingMembers ? (
                 <div className="flex items-center justify-center h-32">
@@ -256,11 +253,10 @@ export default function MemberProfilePage() {
                     <button
                       key={member._id}
                       onClick={() => handleSelectMember(member)}
-                      className={`w-full text-left p-3 rounded-lg transition-colors ${
-                        selectedMember?._id === member._id
-                          ? 'bg-blue-50 border border-blue-200 text-blue-900'
-                          : 'hover:bg-gray-50 border border-transparent'
-                      }`}
+                      className={`w-full text-left p-3 rounded-lg transition-colors ${selectedMember?._id === member._id
+                        ? 'bg-blue-50 border border-blue-200 text-blue-900'
+                        : 'hover:bg-gray-50 border border-transparent'
+                        }`}
                     >
                       <div className="font-medium">{member.memberName}</div>
                       <div className="text-sm text-gray-500">
@@ -286,15 +282,14 @@ export default function MemberProfilePage() {
                 <div className="p-6 border-b border-gray-200">
                   <div className="flex justify-between items-start mb-6">
                     <h2 className="text-xl font-semibold text-gray-900">{selectedMember.memberName}</h2>
-                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                      selectedMember.isActive 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${selectedMember.isActive
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                      }`}>
                       {selectedMember.isActive ? '活躍' : '已禁用'}
                     </span>
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -340,7 +335,7 @@ export default function MemberProfilePage() {
                         <p className="text-sm text-gray-600">當前剩餘配額: <span className="font-semibold text-blue-600">{selectedMember.quota}</span></p>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center space-x-3">
                       <input
                         type="number"
@@ -366,7 +361,7 @@ export default function MemberProfilePage() {
                     <h3 className="text-lg font-semibold text-gray-900">出席記錄</h3>
                     <span className="text-sm text-gray-600">共 {attendanceRecords.length} 條記錄</span>
                   </div>
-                  
+
                   <div className="overflow-y-auto max-h-64">
                     {isLoadingRecords ? (
                       <div className="flex items-center justify-center h-32">
@@ -382,11 +377,10 @@ export default function MemberProfilePage() {
                           <div key={record._id} className="border border-gray-200 rounded-lg p-4">
                             <div className="flex justify-between items-start mb-2">
                               <div className="font-medium text-gray-900">{record.activity}</div>
-                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                record.status === '出席' 
-                                  ? 'bg-green-100 text-green-800' 
-                                  : 'bg-yellow-100 text-yellow-800'
-                              }`}>
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${record.status === '出席'
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-yellow-100 text-yellow-800'
+                                }`}>
                                 {record.status}
                               </span>
                             </div>

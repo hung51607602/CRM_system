@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 
 interface AttendanceRecord {
@@ -16,27 +16,23 @@ export default function PersonDetailPage() {
   const router = useRouter();
   const params = useParams();
   const personId = params.id as string;
-  
+
   const [personRecords, setPersonRecords] = useState<AttendanceRecord[]>([]);
   const [personInfo, setPersonInfo] = useState<{ name: string; contactInfo: string } | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (personId) {
-      fetchPersonRecords();
-    }
-  }, [personId]);
 
-  const fetchPersonRecords = async () => {
+
+  const fetchPersonRecords = useCallback(async () => {
     try {
       const response = await fetch('/api/attendance');
       const data = await response.json();
       if (response.ok) {
         const decodedName = decodeURIComponent(personId);
-        const records = data.filter((record: AttendanceRecord) => 
+        const records = data.filter((record: AttendanceRecord) =>
           record.name.trim().toLowerCase() === decodedName.toLowerCase()
         );
-        
+
         setPersonRecords(records);
         if (records.length > 0) {
           setPersonInfo({
@@ -47,12 +43,18 @@ export default function PersonDetailPage() {
       } else {
         console.error('獲取資料失敗:', data.error);
       }
-    } catch (error) {
-      console.error('獲取資料失敗:', error);
+    } catch {
+      console.error('獲取資料失敗');
     } finally {
       setLoading(false);
     }
-  };
+  }, [personId]);
+
+  useEffect(() => {
+    if (personId) {
+      fetchPersonRecords();
+    }
+  }, [personId, fetchPersonRecords]);
 
   const formatDate = (dateString: string) => {
     try {
@@ -160,7 +162,7 @@ export default function PersonDetailPage() {
             出席次數：{personRecords.length}
           </p>
         </div>
-        
+
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
