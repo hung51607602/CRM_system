@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Account from '@/models/Account';
 import cache from '@/lib/cache';
+import { AVAILABLE_LOCATIONS } from '@/utils/constants';
 
 // 获取账户列表（根据角色筛选）
 export async function GET(request: NextRequest) {
@@ -59,7 +60,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const { username, password, role, locations, memberName, phone, herbalifePCNumber, joinDate, trainerIntroducer, referrer, quota } = await request.json();
-    
+
     // 验证必填字段
     if (!username || !password || !role) {
       return NextResponse.json(
@@ -77,11 +78,10 @@ export async function POST(request: NextRequest) {
         );
       }
     }
-    
+
     // 验证地区权限（如果提供的话）
-    const validLocations = ['灣仔', '黃大仙', '石門'];
     if (locations && Array.isArray(locations)) {
-      const invalidLocations = locations.filter((loc: string) => !validLocations.includes(loc));
+      const invalidLocations = locations.filter((loc: string) => !AVAILABLE_LOCATIONS.includes(loc));
       if (invalidLocations.length > 0) {
         return NextResponse.json(
           { success: false, message: '包含无效的地区权限' },
@@ -89,9 +89,9 @@ export async function POST(request: NextRequest) {
         );
       }
     }
-    
+
     await connectDB();
-    
+
     // 统一处理用户名（转小写并去除空格）
     const normalizedUsername = username.toLowerCase().trim();
 
@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
     if (['member', 'regular-member', 'premium-member'].includes(role)) {
       cache.delete('accounts_member');
     }
-    
+
     // 返回创建的账户信息（不包含加密密码）
     const accountData: Record<string, unknown> = {
       _id: newAccount._id,
@@ -174,7 +174,7 @@ export async function POST(request: NextRequest) {
       accountData.addedTickets = newAccount.addedTickets;
       accountData.usedTickets = newAccount.usedTickets;
     }
-    
+
     return NextResponse.json({
       success: true,
       message: '账户创建成功',

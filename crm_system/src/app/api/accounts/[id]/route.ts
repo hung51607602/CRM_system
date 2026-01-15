@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Account from '@/models/Account';
+import { AVAILABLE_LOCATIONS } from '@/utils/constants';
 
 // 获取单个账户的详细信息
 export async function GET(
@@ -10,16 +11,16 @@ export async function GET(
   try {
     await connectDB();
     const { id } = await params;
-    
+
     const account = await Account.findById(id);
-    
+
     if (!account) {
       return NextResponse.json(
         { success: false, message: '账户不存在' },
         { status: 404 }
       );
     }
-    
+
     // 準備返回的基本數據
     const accountData: Record<string, unknown> = {
       _id: account._id,
@@ -69,19 +70,19 @@ export async function DELETE(
   try {
     await connectDB();
     const { id } = await params;
-    
+
     const account = await Account.findById(id);
-    
+
     if (!account) {
       return NextResponse.json(
         { success: false, message: '账户不存在' },
         { status: 404 }
       );
     }
-    
+
     // 删除账户
     await Account.findByIdAndDelete(id);
-    
+
     return NextResponse.json({
       success: true,
       message: '账户删除成功',
@@ -109,7 +110,7 @@ export async function PUT(
     await connectDB();
     const { id } = await params;
     const { username, password, locations } = await request.json();
-    
+
     // 验证输入
     if (!username || username.trim().length < 3) {
       return NextResponse.json(
@@ -117,18 +118,17 @@ export async function PUT(
         { status: 400 }
       );
     }
-    
+
     if (!password || password.length < 6) {
       return NextResponse.json(
         { success: false, message: '密码至少需要6个字符' },
         { status: 400 }
       );
     }
-    
+
     // 验证地区权限（如果提供的话）
-    const validLocations = ['灣仔', '黃大仙', '石門'];
     if (locations && Array.isArray(locations)) {
-      const invalidLocations = locations.filter((loc: string) => !validLocations.includes(loc));
+      const invalidLocations = locations.filter((loc: string) => !AVAILABLE_LOCATIONS.includes(loc));
       if (invalidLocations.length > 0) {
         return NextResponse.json(
           { success: false, message: '包含无效的地区权限' },
@@ -136,16 +136,16 @@ export async function PUT(
         );
       }
     }
-    
+
     const account = await Account.findById(id);
-    
+
     if (!account) {
       return NextResponse.json(
         { success: false, message: '账户不存在' },
         { status: 404 }
       );
     }
-    
+
     // 统一处理用户名（转小写并去除空格）
     const normalizedUsername = username.toLowerCase().trim();
 
@@ -166,14 +166,14 @@ export async function PUT(
     account.username = normalizedUsername;
     account.password = password;
     account.displayPassword = password; // 保存明文密码用于显示
-    
+
     // 更新地区权限（如果提供的话）
     if (locations !== undefined) {
       account.locations = locations;
     }
-    
+
     await account.save();
-    
+
     // 準備返回的基本數據
     const updatedAccountData: Record<string, unknown> = {
       _id: account._id,

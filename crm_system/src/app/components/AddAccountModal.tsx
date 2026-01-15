@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import CustomSelect from '@/app/components/CustomSelect';
+import LocationPermissionEditor from '@/app/components/LocationPermissionEditor';
 
 interface AddAccountModalProps {
   isOpen: boolean;
@@ -22,9 +23,10 @@ export default function AddAccountModal({ isOpen, onClose, onSuccess, defaultRol
     joinDate: '',
     trainerIntroducer: '',
     referrer: '',
-    quota: 0
+    quota: 0,
+    locations: [] as string[]
   });
-  const [trainers, setTrainers] = useState<{_id: string, username: string}[]>([]);
+  const [trainers, setTrainers] = useState<{ _id: string, username: string }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -57,7 +59,8 @@ export default function AddAccountModal({ isOpen, onClose, onSuccess, defaultRol
       const submitData = ['member', 'regular-member', 'premium-member'].includes(defaultRole) ? formData : {
         username: formData.username,
         password: formData.password,
-        role: formData.role
+        role: formData.role,
+        locations: formData.locations
       };
 
       const response = await fetch('/api/accounts', {
@@ -71,9 +74,9 @@ export default function AddAccountModal({ isOpen, onClose, onSuccess, defaultRol
       const result = await response.json();
 
       if (result.success) {
-        setFormData({ 
-          username: '', 
-          password: '', 
+        setFormData({
+          username: '',
+          password: '',
           role: defaultRole === 'member' ? 'regular-member' : defaultRole,
           memberName: '',
           phone: '',
@@ -81,7 +84,8 @@ export default function AddAccountModal({ isOpen, onClose, onSuccess, defaultRol
           joinDate: '',
           trainerIntroducer: '',
           referrer: '',
-          quota: 0
+          quota: 0,
+          locations: []
         });
         onSuccess();
         onClose();
@@ -96,9 +100,9 @@ export default function AddAccountModal({ isOpen, onClose, onSuccess, defaultRol
   };
 
   const handleClose = () => {
-    setFormData({ 
-      username: '', 
-      password: '', 
+    setFormData({
+      username: '',
+      password: '',
       role: defaultRole === 'member' ? 'regular-member' : defaultRole,
       memberName: '',
       phone: '',
@@ -106,7 +110,8 @@ export default function AddAccountModal({ isOpen, onClose, onSuccess, defaultRol
       joinDate: '',
       trainerIntroducer: '',
       referrer: '',
-      quota: 0
+      quota: 0,
+      locations: []
     });
     setError('');
     onClose();
@@ -171,6 +176,17 @@ export default function AddAccountModal({ isOpen, onClose, onSuccess, defaultRol
               required
             />
           </div>
+
+          {/* Location Permissions - Only for Trainers */}
+          {!isMember && formData.role === 'trainer' && (
+            <div>
+              <LocationPermissionEditor
+                initialLocations={formData.locations}
+                onLocationsChange={(locations) => setFormData({ ...formData, locations })}
+                disabled={isLoading}
+              />
+            </div>
+          )}
 
           {isMember && (
             <>

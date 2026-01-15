@@ -8,7 +8,7 @@ interface LocationPermissionEditorProps {
   disabled?: boolean;
 }
 
-import { AVAILABLE_LOCATIONS } from '@/utils/constants';
+import { AVAILABLE_LOCATIONS, getLocationDisplay, LOCATION_DISPLAY_MAP } from '@/utils/constants';
 
 export default function LocationPermissionEditor({
   initialLocations,
@@ -38,21 +38,28 @@ export default function LocationPermissionEditor({
         地區權限
       </label>
       <div className="space-y-2">
-        {AVAILABLE_LOCATIONS.map((location) => (
-          <label
-            key={location}
-            className={`flex items-center cursor-pointer ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            <input
-              type="checkbox"
-              checked={selectedLocations.includes(location)}
-              onChange={() => handleLocationToggle(location)}
-              disabled={disabled}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50"
-            />
-            <span className="ml-2 text-sm text-gray-700">{location}</span>
-          </label>
-        ))}
+        {AVAILABLE_LOCATIONS.map((location) => {
+          // Check if location is selected (handling both exact match and mapped match)
+          const isSelected = selectedLocations.some(loc =>
+            loc === location || LOCATION_DISPLAY_MAP[loc] === location
+          );
+
+          return (
+            <label
+              key={location}
+              className={`flex items-center cursor-pointer ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <input
+                type="checkbox"
+                checked={isSelected}
+                onChange={() => handleLocationToggle(location)}
+                disabled={disabled}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50"
+              />
+              <span className="ml-2 text-sm text-gray-700">{getLocationDisplay(location)}</span>
+            </label>
+          );
+        })}
       </div>
       <p className="text-xs text-gray-500 mt-2">
         選擇教練可以管理的地區。未選擇任何地區時，該教練將無法查看任何出席記錄。
