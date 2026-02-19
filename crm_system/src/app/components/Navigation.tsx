@@ -423,19 +423,32 @@ export default function Navigation() {
                             </li>
                           </>
                         )}
-                        {/* 補簽到 */}
+                        {/* 補簽到 & 簽到表格 */}
                         {user?.role === 'admin' && (
-                          <li>
-                            <Link
-                              href="/attendance/checkin"
-                              className={`block px-3 py-2 text-sm rounded-md transition-colors ${pathname === '/attendance/checkin'
-                                ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
-                                : 'text-gray-600 hover:bg-gray-100'
-                                }`}
-                            >
-                              補簽到
-                            </Link>
-                          </li>
+                          <>
+                            <li>
+                              <Link
+                                href="/attendance/checkin"
+                                className={`block px-3 py-2 text-sm rounded-md transition-colors ${pathname === '/attendance/checkin'
+                                  ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
+                                  : 'text-gray-600 hover:bg-gray-100'
+                                  }`}
+                              >
+                                補簽到
+                              </Link>
+                            </li>
+                            <li>
+                              <Link
+                                href="/attendance/checkin-table"
+                                className={`block px-3 py-2 text-sm rounded-md transition-colors ${pathname === '/attendance/checkin-table'
+                                  ? 'bg-blue-50 text-blue-700 border-l-2 border-blue-700'
+                                  : 'text-gray-600 hover:bg-gray-100'
+                                  }`}
+                              >
+                                簽到表格
+                              </Link>
+                            </li>
+                          </>
                         )}
                       </ul>
                     )}
