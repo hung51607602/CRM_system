@@ -14,26 +14,25 @@ export interface IAttendance extends Document {
 const AttendanceSchema: Schema = new Schema({
   name: {
     type: String,
-    required: [true, '請提供參加者姓名'],
     trim: true,
+    default: '',
     maxLength: [100, '姓名不能超過100個字符']
   },
   contactInfo: {
     type: String,
-    required: [true, '請提供聯絡方式'],
     trim: true,
+    default: '',
     maxLength: [200, '聯絡方式不能超過200個字符']
   },
   location: {
     type: String,
-    required: [true, '請提供地點'],
-    enum: ['灣仔', '黃大仙', '石門'],
-    trim: true
+    trim: true,
+    default: ''
   },
   activity: {
     type: String,
-    required: [true, '請提供活動內容'],
     trim: true,
+    default: '',
     maxLength: [1000, '活動內容不能超過1000個字符']
   },
   activityId: {

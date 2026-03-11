@@ -1,20 +1,72 @@
 'use client'
 
-import CustomSelect from '@/app/components/CustomSelect';
-import { getLocationDisplay } from '@/utils/constants';
-import { useCheckinLogic } from '@/hooks/useCheckinLogic';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function CheckinTablePage() {
-    const {
-        router,
-        isSubmitting,
-        activities,
-        formData,
-        memberValidation,
-        handleChange,
-        handleSubmit,
-        isFormValid
-    } = useCheckinLogic();
+    const router = useRouter();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    // Instead of useCheckinLogic which handles intricate checking and quotas,
+    // we use a simple local state for this form.
+    const [formData, setFormData] = useState({
+        name: '',
+        contactInfo: '',
+        activity: '',
+        location: '',
+        other: ''
+    });
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+
+        try {
+            const response = await fetch('/api/attendance', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                // Send plain text fields (allowing empty values since API will be updated)
+                body: JSON.stringify({
+                    name: formData.name,
+                    contactInfo: formData.contactInfo,
+                    location: formData.location,
+                    activity: formData.activity,
+                    other: formData.other
+                }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert('✅ 記錄已成功添加！');
+                // Optional: clear form or redirect
+                // router.push('/attendance');
+                setFormData({
+                    name: '',
+                    contactInfo: '',
+                    activity: '',
+                    location: '',
+                    other: ''
+                });
+            } else {
+                alert(`❌ 添加失敗：${data.error}`);
+            }
+        } catch {
+            alert('❌ 提交失敗，請重試');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
         <div className="max-w-7xl mx-auto px-2 sm:px-6 lg:px-8 py-6">
@@ -31,7 +83,7 @@ export default function CheckinTablePage() {
                 </button>
                 <div className="flex-1">
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-800">簽到表格</h1>
-                    <p className="text-gray-600 mt-1 text-sm md:text-base">使用表格形式進行快速補簽到（會自動扣除會員配額）</p>
+                    <p className="text-gray-600 mt-1 text-sm md:text-base">手動填寫表格記錄</p>
                 </div>
             </div>
 
@@ -43,13 +95,13 @@ export default function CheckinTablePage() {
                             <thead className="bg-gray-100">
                                 <tr>
                                     <th scope="col" className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700 w-1/6">
-                                        參加者姓名 <span className="text-red-500">*</span>
+                                        參加者姓名
                                     </th>
                                     <th scope="col" className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700 w-1/6">
-                                        聯絡方式 <span className="text-red-500">*</span>
+                                        聯絡方式
                                     </th>
                                     <th scope="col" className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700 w-1/4">
-                                        運動班選項 <span className="text-red-500">*</span>
+                                        運動班選項
                                     </th>
                                     <th scope="col" className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700 w-1/6">
                                         地點
@@ -72,20 +124,7 @@ export default function CheckinTablePage() {
                                             onChange={handleChange}
                                             placeholder="輸入姓名"
                                             className="w-full h-full px-3 py-2 border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none block"
-                                            required
                                         />
-                                        {/* 會員验证状态 - 浮動顯示 */}
-                                        {(formData.name.trim() && formData.contactInfo.trim()) && (
-                                            <div className="absolute right-1 top-1 pointer-events-none">
-                                                {memberValidation.isValidating ? (
-                                                    <span className="text-blue-600 text-xs">●</span>
-                                                ) : memberValidation.error ? (
-                                                    <span className="text-red-600 text-xs" title={memberValidation.error}>❌</span>
-                                                ) : memberValidation.member ? (
-                                                    <span className="text-green-600 text-xs" title={`餘額: ${memberValidation.member.quota}`}>✅</span>
-                                                ) : null}
-                                            </div>
-                                        )}
                                     </td>
                                     <td className="border border-gray-300 p-0 align-top h-12">
                                         <input
@@ -95,40 +134,26 @@ export default function CheckinTablePage() {
                                             onChange={handleChange}
                                             placeholder="電話/郵箱"
                                             className="w-full h-full px-3 py-2 border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none block"
-                                            required
                                         />
                                     </td>
                                     <td className="border border-gray-300 p-0 align-top h-12">
-                                        <div className="h-full w-full relative">
-                                            <select
-                                                name="activityId"
-                                                value={formData.activityId}
-                                                onChange={handleChange}
-                                                required
-                                                className="w-full h-full px-3 py-2 border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none block bg-transparent appearance-none cursor-pointer"
-                                            >
-                                                <option value="">請選擇運動班</option>
-                                                {activities.map((activity) => (
-                                                    <option key={activity._id} value={activity._id}>
-                                                        {activity.activityName} - {activity.trainerName} - {getLocationDisplay(activity.location)} ({new Date(activity.startTime).toLocaleDateString('zh-CN')})
-                                                    </option>
-                                                ))}
-                                            </select>
-                                            {/* Custom arrow for select */}
-                                            <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                                                <svg className="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                                                </svg>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="border border-gray-300 p-0 align-top h-12 bg-gray-50">
                                         <input
                                             type="text"
+                                            name="activity"
+                                            value={formData.activity}
+                                            onChange={handleChange}
+                                            placeholder="輸入運動班"
+                                            className="w-full h-full px-3 py-2 border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none block"
+                                        />
+                                    </td>
+                                    <td className="border border-gray-300 p-0 align-top h-12 bg-white">
+                                        <input
+                                            type="text"
+                                            name="location"
                                             value={formData.location}
-                                            readOnly
-                                            className="w-full h-full px-3 py-2 border-none bg-transparent text-gray-600 outline-none"
-                                            placeholder=""
+                                            onChange={handleChange}
+                                            placeholder="輸入地點"
+                                            className="w-full h-full px-3 py-2 border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none block bg-transparent"
                                         />
                                     </td>
                                     <td className="border border-gray-300 p-0 align-top h-12">
@@ -144,7 +169,7 @@ export default function CheckinTablePage() {
                                     <td className="border border-gray-300 p-1 align-middle text-center">
                                         <button
                                             type="submit"
-                                            disabled={!isFormValid || isSubmitting}
+                                            disabled={isSubmitting}
                                             className="w-full h-full flex items-center justify-center py-1 px-2 border border-transparent text-sm font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 disabled:text-gray-400 disabled:hover:bg-transparent transition-colors"
                                         >
                                             {isSubmitting ? '...' : '提交'}

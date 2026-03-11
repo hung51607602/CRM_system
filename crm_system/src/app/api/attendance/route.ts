@@ -44,15 +44,11 @@ export async function POST(request: NextRequest) {
     }
     
     const body = await request.json();
-    const { name, contactInfo, location, activity, activityId, memberId } = body;
+    const { name = '', contactInfo = '', location = '', activity = '', activityId, memberId } = body;
     
-    // 验证必需字段
-    if (!name || !contactInfo || !location || !activity) {
-      return NextResponse.json(
-        { error: '所有字段都是必需的：姓名、联系方式、地点、活动内容' },
-        { status: 400 }
-      );
-    }
+    // We no longer require these fields to exist strictly; they can be empty strings for simple tracking.
+    // 验证必需字段 - REMOVED
+    // if (!name || !contactInfo || !location || !activity) { ... }
     
     // 检查用户是否有权限在该地区创建记录
     if (user.role === 'trainer') {
@@ -64,7 +60,9 @@ export async function POST(request: NextRequest) {
         );
       }
       
-      if (!user.locations.includes(location)) {
+      // If location is provided, ensure it's in their locations. 
+      // If location is completely empty, we allow creation, but strict flows might not.
+      if (location && !user.locations.includes(location.trim())) {
         return NextResponse.json(
           { error: `您没有在 ${location} 创建出席记录的权限` },
           { status: 403 }
@@ -86,7 +84,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 如果提供了memberId，验证会员并扣除quota
+    // 如果提供了memberId，验证会员并扣除quota (Original logic kept mostly intact for backward compat)
     if (memberId) {
       const member = await Account.findById(memberId);
       
@@ -148,14 +146,18 @@ export async function POST(request: NextRequest) {
       }
 
       // 验证会员信息是否匹配
-      const isNameMatch = member.memberName === name.trim();
-      const isContactMatch = member.phone === contactInfo.trim();
+      // Make sure we only validate if name and contactInfo were provided (they're optional now in schema)
+      // Usually member flows send these details strictly.
+      if (name && contactInfo) {
+        const isNameMatch = member.memberName === name.trim();
+        const isContactMatch = member.phone === contactInfo.trim();
 
-      if (!isNameMatch || !isContactMatch) {
-        return NextResponse.json(
-          { error: '提供的姓名和联系方式与会员记录不匹配' },
-          { status: 400 }
-        );
+        if (!isNameMatch || !isContactMatch) {
+          return NextResponse.json(
+            { error: '提供的姓名和联系方式与会员记录不匹配' },
+            { status: 400 }
+          );
+        }
       }
 
       // 扣除配额（更新套票相關字段）
@@ -176,18 +178,20 @@ export async function POST(request: NextRequest) {
       await member.save();
     }
     
+    // Save new record. Empty strings are allowed down to schema level.
     const newAttendance = new Attendance({
-      name: name.trim(),
-      contactInfo: contactInfo.trim(),
-      location: location.trim(),
-      activity: activity.trim(),
+      name: name ? name.trim() : '',
+      contactInfo: contactInfo ? contactInfo.trim() : '',
+      location: location ? location.trim() : '',
+      activity: activity ? activity.trim() : '',
       activityId: activityId || undefined // 保存活動ID，如果沒有則為undefined
     });
     
     const savedAttendance = await newAttendance.save();
     
     // 如果指定了活动ID，将参与者添加到活动中
-    if (activityId) {
+    // Still works if name is empty, but just appends an empty string. Consider skipping if name is empty.
+    if (activityId && name.trim()) {
       try {
         const { default: Activity } = await import('@/models/Activity');
         await Activity.findByIdAndUpdate(
