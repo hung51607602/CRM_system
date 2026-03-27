@@ -47,7 +47,7 @@ export default function AddAttendancePage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-              參加者姓名 <span className="text-red-500">*</span>
+              教班費 <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -55,7 +55,7 @@ export default function AddAttendancePage() {
               name="name"
               value={formData.name}
               onChange={handleChange}
-              placeholder="請輸入參加者姓名"
+              placeholder="請輸入教班費"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             />
@@ -63,7 +63,7 @@ export default function AddAttendancePage() {
 
           <div>
             <label htmlFor="contactInfo" className="block text-sm font-medium text-gray-700 mb-2">
-              聯絡方式 <span className="text-red-500">*</span>
+              收入 <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -71,7 +71,7 @@ export default function AddAttendancePage() {
               name="contactInfo"
               value={formData.contactInfo}
               onChange={handleChange}
-              placeholder="請輸入聯絡方式（電話、郵箱等）"
+              placeholder="請輸入收入（電話、郵箱等）"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             />
@@ -107,8 +107,8 @@ export default function AddAttendancePage() {
                   </div>
                   <div className="text-sm text-gray-600 space-y-1">
                     <div>會員姓名: {memberValidation.member.memberName}</div>
-                    <div>聯絡方式: {memberValidation.member.phone}</div>
-                    <div>剩餘配額: <span className="font-semibold text-blue-600">{memberValidation.member.quota}</span></div>
+                    <div>收入: {memberValidation.member.phone}</div>
+                    <div>Remarks: <span className="font-semibold text-blue-600">{memberValidation.member.quota}</span></div>
                     <div className="text-xs text-yellow-600 mt-2">
                       ⚠️ 提交後將自動扣除 1 個配額
                     </div>
@@ -138,19 +138,19 @@ export default function AddAttendancePage() {
 
           <div>
             <label htmlFor="activity" className="block text-sm font-medium text-gray-700 mb-2">
-              運動班選項 <span className="text-red-500">*</span>
+              每天總數 <span className="text-red-500">*</span>
             </label>
             <CustomSelect
               value={formData.activityId}
               onChange={(value) => handleChange({ target: { name: 'activityId', value } } as React.ChangeEvent<HTMLSelectElement>)}
               options={[
-                { value: '', label: '請選擇運動班' },
+                { value: '', label: '請選擇每天總數' },
                 ...activities.map((activity) => ({
                   value: activity._id,
                   label: `${activity.activityName} - ${activity.trainerName} - ${getLocationDisplay(activity.location)} (${new Date(activity.startTime).toLocaleDateString('zh-CN')})`,
                 })),
               ]}
-              placeholder="請選擇運動班"
+              placeholder="請選擇每天總數"
               required
             />
           </div>
@@ -190,14 +190,14 @@ export default function AddAttendancePage() {
 
           <div>
             <label htmlFor="other" className="block text-sm font-medium text-gray-700 mb-2">
-              其他
+              REMARKS
             </label>
             <textarea
               id="other"
               name="other"
               value={formData.other}
               onChange={handleChange}
-              placeholder="請輸入其他相關資訊或備註"
+              placeholder="請輸入備註"
               rows={3}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
             />

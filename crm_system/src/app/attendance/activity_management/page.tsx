@@ -297,7 +297,7 @@ export default function ActivityManagementPage() {
                   <div className="grid grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        負責教練
+                        介紹費
                       </label>
                       <div className="text-gray-900">{selectedActivity.trainerName}</div>
                     </div>
@@ -423,7 +423,7 @@ export default function ActivityManagementPage() {
 
                 <div>
                   <label htmlFor="trainerId" className="block text-sm font-medium text-gray-700 mb-1">
-                    負責教練 <span className="text-red-500">*</span>
+                    介紹費 <span className="text-red-500">*</span>
                   </label>
                   <CustomSelect
                     value={addFormData.trainerId}

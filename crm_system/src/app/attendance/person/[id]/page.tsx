@@ -171,7 +171,7 @@ export default function PersonDetailPage() {
                   地點
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  活動內容
+                  每天總數
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   日期

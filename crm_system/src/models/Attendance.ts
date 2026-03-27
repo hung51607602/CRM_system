@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IAttendance extends Document {
   name: string;              // 參加者姓名
-  contactInfo: string;       // 聯絡方式
+  contactInfo: string;       // 收入（聯絡）
   location: string;          // 地點
   activity: string;          // 活動內容
   activityId?: string;       // 活動ID（用於精確識別活動時段）
@@ -22,7 +22,7 @@ const AttendanceSchema: Schema = new Schema({
     type: String,
     trim: true,
     default: '',
-    maxLength: [200, '聯絡方式不能超過200個字符']
+    maxLength: [200, '收入不能超過200個字符']
   },
   location: {
     type: String,

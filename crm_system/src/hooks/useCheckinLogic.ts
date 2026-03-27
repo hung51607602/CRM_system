@@ -141,7 +141,7 @@ export function useCheckinLogic() {
         setMemberValidation({
           isValidating: false,
           member: null,
-          error: '找不到該會員記錄，請檢查姓名和聯絡方式是否正確'
+          error: '找不到該會員記錄，請檢查姓名和收入是否正確'
         });
       }
     } catch {

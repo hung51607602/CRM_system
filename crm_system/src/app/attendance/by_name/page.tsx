@@ -287,7 +287,7 @@ export default function AttendanceByNamePage() {
           <div className="relative">
             <input
               type="text"
-              placeholder="搜索姓名或聯絡方式..."
+              placeholder="搜索姓名或收入..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={(e) => {
@@ -366,7 +366,7 @@ export default function AttendanceByNamePage() {
                   姓名
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  聯絡方式
+                  收入
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   參與次數

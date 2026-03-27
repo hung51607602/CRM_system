@@ -282,7 +282,7 @@ export default function ScanAttendancePage() {
 
       // 檢查配額是否足夠
       if (member.quota < productScanResult.price) {
-        setError(`餘額不足！您的剩餘配額為 ${member.quota}，需要 ${productScanResult.price}`);
+        setError(`餘額不足！您的Remarks為 ${member.quota}，需要 ${productScanResult.price}`);
         return;
       }
 
@@ -312,7 +312,7 @@ export default function ScanAttendancePage() {
         // 扣款成功
         setSuccess(
           `✅ 扣款成功！已扣除 ${result.data.transaction.deductedAmount} 配額，` +
-          `剩餘配額: ${result.data.transaction.newQuota}`
+          `Remarks: ${result.data.transaction.newQuota}`
         );
         
         // 清空產品掃描結果
@@ -329,7 +329,7 @@ export default function ScanAttendancePage() {
         // 扣款失敗
         if (result.message === '餘額不足') {
           setError(
-            `餘額不足！您的剩餘配額為 ${result.data?.currentQuota || 0}，` +
+            `餘額不足！您的Remarks為 ${result.data?.currentQuota || 0}，` +
             `需要 ${result.data?.requiredAmount || productScanResult.price}`
           );
         } else {
@@ -483,7 +483,7 @@ export default function ScanAttendancePage() {
                 <h3 className="text-sm font-semibold text-blue-800 mb-2">會員資料</h3>
                 <div className="space-y-1 text-sm text-blue-700">
                   <p><strong>姓名:</strong> {memberInfo.memberName}</p>
-                  <p><strong>剩餘配額:</strong> {memberInfo.quota}</p>
+                  <p><strong>Remarks:</strong> {memberInfo.quota}</p>
                 </div>
               </div>
             )}
@@ -548,7 +548,7 @@ export default function ScanAttendancePage() {
                     <h3 className="text-sm font-semibold text-green-800 mb-2">會員資料</h3>
                     <div className="space-y-1 text-sm text-green-700">
                       <p><strong>姓名:</strong> {memberInfo.memberName}</p>
-                      <p><strong>當前剩餘配額:</strong> <span className="text-lg font-bold">{memberInfo.quota}</span></p>
+                      <p><strong>當前Remarks:</strong> <span className="text-lg font-bold">{memberInfo.quota}</span></p>
                       <p><strong>本次消費:</strong> <span className="text-lg font-bold text-red-600">{productScanResult.price}</span></p>
                       {memberInfo.quota >= productScanResult.price ? (
                         <p><strong>扣款後剩餘:</strong> <span className="text-lg font-bold text-blue-600">{memberInfo.quota - productScanResult.price}</span></p>

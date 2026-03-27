@@ -14,7 +14,7 @@ interface AttendanceRecord {
   activity: string;
   createdAt: string;
   updatedAt: string;
-  quota?: number; // 剩餘配額，可選字段
+  quota?: number; // Remarks，可選字段
   trainerName?: string; // 教練姓名，可選字段
 }
 
@@ -301,8 +301,8 @@ export default function AttendancePage() {
     },
     {
       key: 'name',
-      header: '參加者姓名',
-      mobileLabel: '姓名',
+      header: '教班費',
+      mobileLabel: '教班費',
       render: (item: unknown) => {
         const record = item as AttendanceRecord;
         if (!isUpdateMode) {
@@ -322,8 +322,8 @@ export default function AttendancePage() {
     },
     {
       key: 'contactInfo',
-      header: '聯絡方式',
-      mobileLabel: '聯絡方式',
+      header: '收入',
+      mobileLabel: '收入',
       hideOnMobile: isMobile && isUpdateMode, // 編輯模式時在手機上隱藏以節省空間
       render: (item: unknown) => {
         const record = item as AttendanceRecord;
@@ -344,8 +344,8 @@ export default function AttendancePage() {
     },
     {
       key: 'location',
-      header: '地點',
-      mobileLabel: '地點',
+      header: '收入',
+      mobileLabel: '收入',
       render: (item: unknown) => {
         const record = item as AttendanceRecord;
         if (!isUpdateMode) {
@@ -365,8 +365,8 @@ export default function AttendancePage() {
     },
     {
       key: 'activity',
-      header: '活動內容',
-      mobileLabel: '活動',
+      header: '每天總數',
+      mobileLabel: '每天總數',
       render: (item: unknown) => {
         const record = item as AttendanceRecord;
         if (!isUpdateMode) {
@@ -390,7 +390,7 @@ export default function AttendancePage() {
     },
     {
       key: 'trainerName',
-      header: '負責教練',
+      header: '介紹費',
       mobileLabel: '教練',
       hideOnMobile: isMobile && isUpdateMode,
       render: (item: unknown) => {
@@ -410,7 +410,7 @@ export default function AttendancePage() {
     },
     {
       key: 'quota',
-      header: '剩餘配額',
+      header: 'Remarks',
       mobileLabel: '配額',
       hideOnMobile: isMobile && isUpdateMode,
       render: (item: unknown) => {
@@ -478,7 +478,7 @@ export default function AttendancePage() {
         <div className="relative w-full md:w-64">
           <input
             type="text"
-            placeholder="搜索姓名、聯絡方式、地點、活動或教練..."
+            placeholder="搜索教班費、收入、活動或教練..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full px-4 py-2 pl-10 pr-10 text-base md:text-sm border border-gray-300 rounded-full bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:shadow-md"

@@ -82,7 +82,7 @@ export default function CheckinTablePage() {
                     返回列表
                 </button>
                 <div className="flex-1">
-                    <h1 className="text-2xl md:text-3xl font-bold text-gray-800">簽到表格</h1>
+                    <h1 className="text-2xl md:text-3xl font-bold text-gray-800">水吧</h1>
                     <p className="text-gray-600 mt-1 text-sm md:text-base">手動填寫表格記錄</p>
                 </div>
             </div>
@@ -95,19 +95,19 @@ export default function CheckinTablePage() {
                             <thead className="bg-gray-100">
                                 <tr>
                                     <th scope="col" className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700 w-1/6">
-                                        參加者姓名
+                                        教班費
                                     </th>
                                     <th scope="col" className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700 w-1/6">
-                                        聯絡方式
+                                        收入
                                     </th>
                                     <th scope="col" className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700 w-1/4">
-                                        運動班選項
+                                        每天總數
                                     </th>
                                     <th scope="col" className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700 w-1/6">
-                                        地點
+                                        介紹費
                                     </th>
                                     <th scope="col" className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700 w-1/6">
-                                        其他
+                                        REMARKS
                                     </th>
                                     <th scope="col" className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700 w-1/12">
                                         操作
@@ -122,7 +122,7 @@ export default function CheckinTablePage() {
                                             name="name"
                                             value={formData.name}
                                             onChange={handleChange}
-                                            placeholder="輸入姓名"
+                                            placeholder="輸入教班費"
                                             className="w-full h-full px-3 py-2 border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none block"
                                         />
                                     </td>
@@ -142,7 +142,7 @@ export default function CheckinTablePage() {
                                             name="activity"
                                             value={formData.activity}
                                             onChange={handleChange}
-                                            placeholder="輸入運動班"
+                                            placeholder="輸入每天總數"
                                             className="w-full h-full px-3 py-2 border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none block"
                                         />
                                     </td>
@@ -152,7 +152,7 @@ export default function CheckinTablePage() {
                                             name="location"
                                             value={formData.location}
                                             onChange={handleChange}
-                                            placeholder="輸入地點"
+                                            placeholder="輸入介紹費"
                                             className="w-full h-full px-3 py-2 border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none block bg-transparent"
                                         />
                                     </td>

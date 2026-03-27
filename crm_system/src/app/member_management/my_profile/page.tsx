@@ -141,7 +141,7 @@ export default function MyProfilePage() {
     { key: '類型', value: getRoleDisplayName(profile.role) },
     { key: '電話號碼', value: profile.phone },
     {
-      key: '剩餘配額',
+      key: 'Remarks',
       value: (
         <span className="text-2xl font-bold text-blue-600">{profile.quota}</span>
       )

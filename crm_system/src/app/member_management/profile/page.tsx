@@ -165,7 +165,7 @@ export default function MemberProfilePage() {
         setMembers(members.map(m => m._id === selectedMember._id ? updatedMember : m));
         const operation = quotaValue >= 0 ? '增加' : '減少';
         const amount = Math.abs(quotaValue);
-        setSuccessMessage(`配额${operation}成功！${operation}了 ${amount} 個配額，當前剩餘配額: ${result.data.quota}`);
+        setSuccessMessage(`配额${operation}成功！${operation}了 ${amount} 個配額，當前Remarks: ${result.data.quota}`);
         setError('');
         // 更新輸入框顯示為新的配額值
         setNewQuota('');
@@ -332,7 +332,7 @@ export default function MemberProfilePage() {
                     <div className="flex items-center justify-between mb-4">
                       <div>
                         <h3 className="text-lg font-medium text-gray-900">配額管理</h3>
-                        <p className="text-sm text-gray-600">當前剩餘配額: <span className="font-semibold text-blue-600">{selectedMember.quota}</span></p>
+                        <p className="text-sm text-gray-600">當前Remarks: <span className="font-semibold text-blue-600">{selectedMember.quota}</span></p>
                       </div>
                     </div>
 
@@ -386,7 +386,7 @@ export default function MemberProfilePage() {
                             </div>
                             <div className="text-sm text-gray-600 space-y-1">
                               <div>地點: {record.location}</div>
-                              <div>聯絡方式: {record.contactInfo}</div>
+                              <div>收入: {record.contactInfo}</div>
                               <div>時間: {formatDate(record.createdAt)}</div>
                             </div>
                           </div>
