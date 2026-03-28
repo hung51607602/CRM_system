@@ -10,6 +10,7 @@ export default function CheckinTablePage() {
     // Instead of useCheckinLogic which handles intricate checking and quotas,
     // we use a simple local state for this form.
     const [formData, setFormData] = useState({
+        waterBar: '',
         name: '',
         contactInfo: '',
         activity: '',
@@ -52,6 +53,7 @@ export default function CheckinTablePage() {
                 // Optional: clear form or redirect
                 // router.push('/attendance');
                 setFormData({
+                    waterBar: '',
                     name: '',
                     contactInfo: '',
                     activity: '',
@@ -82,7 +84,7 @@ export default function CheckinTablePage() {
                     返回列表
                 </button>
                 <div className="flex-1">
-                    <h1 className="text-2xl md:text-3xl font-bold text-gray-800">水吧</h1>
+                    <h1 className="text-2xl md:text-3xl font-bold text-gray-800">日結表</h1>
                     <p className="text-gray-600 mt-1 text-sm md:text-base">手動填寫表格記錄</p>
                 </div>
             </div>
@@ -94,6 +96,9 @@ export default function CheckinTablePage() {
                         <table className="min-w-full border-collapse border border-gray-300">
                             <thead className="bg-gray-100">
                                 <tr>
+                                    <th scope="col" className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700 w-1/6">
+                                        水吧
+                                    </th>
                                     <th scope="col" className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700 w-1/6">
                                         教班費
                                     </th>
@@ -109,13 +114,23 @@ export default function CheckinTablePage() {
                                     <th scope="col" className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700 w-1/6">
                                         REMARKS
                                     </th>
-                                    <th scope="col" className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700 w-1/12">
+                                    <th scope="col" className="border border-gray-300 px-4 py-2 text-left text-sm font-semibold text-gray-700 w-24 whitespace-nowrap">
                                         操作
                                     </th>
                                 </tr>
                             </thead>
                             <tbody className="bg-white">
                                 <tr>
+                                    <td className="border border-gray-300 p-0 align-top relative h-12">
+                                        <input
+                                            type="text"
+                                            name="waterBar"
+                                            value={formData.waterBar}
+                                            onChange={handleChange}
+                                            placeholder="輸入水吧"
+                                            className="w-full h-full px-3 py-2 border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none block"
+                                        />
+                                    </td>
                                     <td className="border border-gray-300 p-0 align-top relative h-12">
                                         <input
                                             type="text"
@@ -166,11 +181,11 @@ export default function CheckinTablePage() {
                                             className="w-full h-full px-3 py-2 border-none focus:ring-2 focus:ring-inset focus:ring-blue-500 outline-none block"
                                         />
                                     </td>
-                                    <td className="border border-gray-300 p-1 align-middle text-center">
+                                    <td className="border border-gray-300 p-1 align-middle text-center min-w-24">
                                         <button
                                             type="submit"
                                             disabled={isSubmitting}
-                                            className="w-full h-full flex items-center justify-center py-1 px-2 border border-transparent text-sm font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 disabled:text-gray-400 disabled:hover:bg-transparent transition-colors"
+                                            className="w-full h-full flex items-center justify-center py-1 px-2 border border-transparent text-sm font-medium text-blue-600 hover:text-blue-800 hover:bg-blue-50 disabled:text-gray-400 disabled:hover:bg-transparent transition-colors whitespace-nowrap"
                                         >
                                             {isSubmitting ? '...' : '提交'}
                                         </button>

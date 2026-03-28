@@ -423,7 +423,7 @@ export default function Navigation() {
                             </li>
                           </>
                         )}
-                        {/* 補簽到 & 水吧 */}
+                        {/* 補簽到 & 日結表 */}
                         {user?.role === 'admin' && (
                           <>
                             <li>
@@ -445,7 +445,7 @@ export default function Navigation() {
                                   : 'text-gray-600 hover:bg-gray-100'
                                   }`}
                               >
-                                水吧
+                                日結表
                               </Link>
                             </li>
                           </>
