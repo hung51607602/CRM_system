@@ -11,8 +11,12 @@ interface MobileTableProps<T = Record<string, unknown>> {
     render?: (item: T) => ReactNode;
     mobileLabel?: string; // 移動端顯示的標籤
     hideOnMobile?: boolean; // 在移動端隱藏此列
+    /** Narrow columns (e.g. checkbox) need min-width or empty headers collapse to 0 width */
+    isNarrow?: boolean;
   }[];
   onRowClick?: (item: T) => void;
+  /** Extra classes per row (e.g. highlight selected rows for delete) */
+  getRowClassName?: (item: T) => string;
   className?: string;
 }
 
@@ -20,6 +24,7 @@ const MobileTable = memo(function MobileTable<T = Record<string, unknown>>({
   data,
   columns,
   onRowClick,
+  getRowClassName,
   className = ''
 }: MobileTableProps<T>) {
   const { isMobile } = useMobileDetection();
@@ -39,7 +44,11 @@ const MobileTable = memo(function MobileTable<T = Record<string, unknown>>({
               {columns.map((column) => (
                 <th
                   key={column.key}
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${
+                    column.isNarrow || column.key === 'checkbox'
+                      ? 'w-14 min-w-[3.5rem] max-w-[4rem] text-center'
+                      : ''
+                  }`}
                 >
                   {column.header}
                 </th>
@@ -51,10 +60,22 @@ const MobileTable = memo(function MobileTable<T = Record<string, unknown>>({
               <tr
                 key={index}
                 onClick={() => onRowClick?.(item)}
-                className={onRowClick ? 'cursor-pointer hover:bg-gray-50' : ''}
+                className={[
+                  onRowClick ? 'cursor-pointer hover:bg-gray-50' : '',
+                  getRowClassName?.(item) ?? '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')}
               >
                 {columns.map((column) => (
-                  <td key={column.key} className="px-6 py-4 whitespace-nowrap">
+                  <td
+                    key={column.key}
+                    className={`px-6 py-4 whitespace-nowrap ${
+                      column.isNarrow || column.key === 'checkbox'
+                        ? 'w-14 min-w-[3.5rem] max-w-[4rem] text-center align-middle'
+                        : ''
+                    }`}
+                  >
                     {column.render ? column.render(item) : (item as Record<string, unknown>)[column.key] as ReactNode}
                   </td>
                 ))}
@@ -73,9 +94,13 @@ const MobileTable = memo(function MobileTable<T = Record<string, unknown>>({
         <div
           key={index}
           onClick={() => onRowClick?.(item)}
-          className={`bg-white rounded-lg border border-gray-200 p-4 ${
-            onRowClick ? 'cursor-pointer active:bg-gray-50' : ''
-          }`}
+          className={[
+            'bg-white rounded-lg border border-gray-200 p-4',
+            onRowClick ? 'cursor-pointer active:bg-gray-50' : '',
+            getRowClassName?.(item) ?? '',
+          ]
+            .filter(Boolean)
+            .join(' ')}
         >
           {filteredColumns.map((column) => {
               const value = column.render ? column.render(item) : (item as Record<string, unknown>)[column.key] as ReactNode;

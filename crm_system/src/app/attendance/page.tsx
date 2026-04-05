@@ -42,6 +42,31 @@ export default function AttendancePage() {
     fetchAttendanceRecords();
   }, []);
 
+  // Lock page scroll when any modal is open (desktop + mobile)
+  useEffect(() => {
+    const open = showDeleteModal || showConfirmModal;
+    if (!open) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [showDeleteModal, showConfirmModal]);
+
+  // Close modal with Escape when not busy
+  useEffect(() => {
+    const open = showDeleteModal || showConfirmModal;
+    if (!open) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      if (isDeleting || isUpdating) return;
+      setShowDeleteModal(false);
+      setShowConfirmModal(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [showDeleteModal, showConfirmModal, isDeleting, isUpdating]);
+
   const fetchAttendanceRecords = async () => {
     try {
       const response = await fetch('/api/attendance/accessible');
@@ -284,25 +309,37 @@ export default function AttendancePage() {
   const tableColumns = [
     {
       key: 'checkbox',
-      header: '',
+      header: '選擇',
+      mobileLabel: '選擇',
+      isNarrow: true,
       hideOnMobile: false,
       render: (item: unknown) => {
         const record = item as AttendanceRecord;
         if (!isUpdateMode) return null;
+        const isSelectedForDelete = selectedRecords.includes(record._id);
         return (
-          <input
-            type="checkbox"
-            checked={selectedRecords.includes(record._id)}
-            onChange={() => handleRecordSelect(record._id)}
-            className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-          />
+          <div className="flex items-center justify-center min-h-[1.25rem]">
+            <input
+              type="checkbox"
+              checked={isSelectedForDelete}
+              onChange={() => handleRecordSelect(record._id)}
+              onClick={(e) => e.stopPropagation()}
+              className={
+                isSelectedForDelete
+                  ? 'h-4 w-4 shrink-0 cursor-pointer rounded border-2 border-red-600 bg-red-50 accent-red-600 shadow-sm ring-2 ring-red-200 focus:ring-2 focus:ring-red-400 focus:ring-offset-1'
+                  : 'h-4 w-4 shrink-0 cursor-pointer rounded border-2 border-gray-300 bg-white accent-blue-600 shadow-sm focus:border-blue-400 focus:ring focus:ring-blue-200 focus:ring-opacity-50'
+              }
+              aria-label={`選擇記錄 ${record.name || record._id}`}
+              title={isSelectedForDelete ? '已選取，將一併刪除' : '選取以刪除'}
+            />
+          </div>
         );
       }
     },
     {
       key: 'name',
-      header: '教班費',
-      mobileLabel: '教班費',
+      header: '水吧',
+      mobileLabel: '水吧',
       render: (item: unknown) => {
         const record = item as AttendanceRecord;
         if (!isUpdateMode) {
@@ -322,8 +359,8 @@ export default function AttendancePage() {
     },
     {
       key: 'contactInfo',
-      header: '收入',
-      mobileLabel: '收入',
+      header: '教班費',
+      mobileLabel: '教班費',
       hideOnMobile: isMobile && isUpdateMode, // 編輯模式時在手機上隱藏以節省空間
       render: (item: unknown) => {
         const record = item as AttendanceRecord;
@@ -478,7 +515,7 @@ export default function AttendancePage() {
         <div className="relative w-full md:w-64">
           <input
             type="text"
-            placeholder="搜索教班費、收入、活動或教練..."
+            placeholder="搜索水吧、教班費、收入、活動或教練..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full px-4 py-2 pl-10 pr-10 text-base md:text-sm border border-gray-300 rounded-full bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all hover:shadow-md"
@@ -582,12 +619,13 @@ export default function AttendancePage() {
           {/* 桌面端：全選複選框 */}
           {!isMobile && isUpdateMode && (
             <div className="px-6 py-3 bg-gray-50 border-b border-gray-200">
-              <label className="flex items-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <label className="flex items-center text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer">
                 <input
                   type="checkbox"
                   checked={selectedRecords.length === filteredRecords.length && filteredRecords.length > 0}
                   onChange={handleSelectAll}
-                  className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mr-2"
+                  className="h-4 w-4 shrink-0 rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mr-2"
+                  aria-label="全選出席記錄"
                 />
                 全選
               </label>
@@ -604,6 +642,13 @@ export default function AttendancePage() {
               data={filteredRecords}
               columns={visibleColumns}
               className={isMobile ? '' : 'rounded-b-lg'}
+              getRowClassName={(item) => {
+                if (!isUpdateMode) return '';
+                const r = item as AttendanceRecord;
+                return selectedRecords.includes(r._id)
+                  ? 'bg-red-50 ring-1 ring-inset ring-red-200'
+                  : '';
+              }}
             />
           )}
 
@@ -628,75 +673,115 @@ export default function AttendancePage() {
 
       {/* 確認更新彈窗 */}
       {showConfirmModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-20 backdrop-blur-sm"></div>
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 z-10">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-800">確認更新記錄</h3>
-            </div>
-            <div className="px-6 py-4">
-              <p className="text-gray-600 mb-4">
-                您即將更新 <span className="font-semibold text-orange-600">{updatedCount}</span> 筆記錄，
-                此操作不可撤銷。是否確認執行？
-              </p>
-            </div>
-            <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
-              <button
-                onClick={() => setShowConfirmModal(false)}
-                disabled={isUpdating}
-                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                取消
-              </button>
-              <button
-                onClick={executeUpdate}
-                disabled={isUpdating}
-                className={`px-4 py-2 text-white rounded-lg transition-colors ${
-                  isUpdating 
-                    ? 'bg-gray-400 cursor-not-allowed' 
-                    : 'bg-green-600 hover:bg-green-700'
-                }`}
-              >
-                {isUpdating ? '更新中...' : '確認更新'}
-              </button>
+        <div
+          className="fixed inset-0 z-[200] overflow-y-auto overflow-x-hidden overscroll-contain"
+          role="presentation"
+        >
+          <div className="flex min-h-dvh w-full items-center justify-center p-4 sm:p-6">
+            <button
+              type="button"
+              className="absolute inset-0 block h-full w-full cursor-default bg-black/50 backdrop-blur-[2px]"
+              aria-label="關閉對話框"
+              disabled={isUpdating}
+              onClick={() => !isUpdating && setShowConfirmModal(false)}
+            />
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="confirm-update-title"
+              className="relative z-10 w-full max-w-md rounded-xl border border-gray-200 bg-white shadow-2xl ring-1 ring-black/5"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 id="confirm-update-title" className="text-lg font-semibold text-gray-800">
+                  確認更新記錄
+                </h3>
+              </div>
+              <div className="px-6 py-4">
+                <p className="text-gray-600 mb-4">
+                  您即將更新 <span className="font-semibold text-orange-600">{updatedCount}</span> 筆記錄，
+                  此操作不可撤銷。是否確認執行？
+                </p>
+              </div>
+              <div className="px-6 py-4 border-t border-gray-200 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmModal(false)}
+                  disabled={isUpdating}
+                  className="w-full sm:w-auto px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                >
+                  取消
+                </button>
+                <button
+                  type="button"
+                  onClick={executeUpdate}
+                  disabled={isUpdating}
+                  className={`w-full sm:w-auto px-4 py-2 text-white rounded-lg transition-colors ${
+                    isUpdating ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'
+                  }`}
+                >
+                  {isUpdating ? '更新中...' : '確認更新'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* 確認刪除彈窗 */}
+      {/* 確認刪除彈窗（置中、鎖捲動、桌面與手機） */}
       {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-20 backdrop-blur-sm"></div>
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 z-10">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-800">確認刪除記錄</h3>
-            </div>
-            <div className="px-6 py-4">
-              <p className="text-gray-600 mb-4">
-                您即將刪除 <span className="font-semibold text-red-600">{selectedRecords.length}</span> 筆記錄，
-                此操作不可撤銷。是否確認執行？
-              </p>
-            </div>
-            <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                disabled={isDeleting}
-                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                取消
-              </button>
-              <button
-                onClick={executeDelete}
-                disabled={isDeleting}
-                className={`px-4 py-2 text-white rounded-lg transition-colors ${
-                  isDeleting 
-                    ? 'bg-gray-400 cursor-not-allowed' 
-                    : 'bg-red-600 hover:bg-red-700'
-                }`}
-              >
-                {isDeleting ? '刪除中...' : '確認刪除'}
-              </button>
+        <div
+          className="fixed inset-0 z-[200] overflow-y-auto overflow-x-hidden overscroll-contain"
+          role="presentation"
+        >
+          <div className="flex min-h-dvh w-full items-center justify-center p-4 sm:p-6">
+            <button
+              type="button"
+              className="absolute inset-0 block h-full w-full cursor-default bg-black/50 backdrop-blur-[2px]"
+              aria-label="關閉對話框"
+              disabled={isDeleting}
+              onClick={() => !isDeleting && setShowDeleteModal(false)}
+            />
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="confirm-delete-title"
+              className="relative z-10 w-full max-w-md rounded-xl border border-gray-200 bg-white shadow-2xl ring-1 ring-black/5"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 id="confirm-delete-title" className="text-lg font-semibold text-gray-800">
+                  確認刪除記錄
+                </h3>
+                <p className="mt-1 text-sm text-gray-500">請確認後再刪除；此操作無法還原。</p>
+              </div>
+              <div className="px-6 py-4">
+                <p className="text-gray-700">
+                  您即將刪除{' '}
+                  <span className="font-semibold text-red-600">{selectedRecords.length}</span> 筆記錄。
+                  是否確認？
+                </p>
+              </div>
+              <div className="px-6 py-4 border-t border-gray-200 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteModal(false)}
+                  disabled={isDeleting}
+                  className="w-full sm:w-auto px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                >
+                  取消
+                </button>
+                <button
+                  type="button"
+                  onClick={executeDelete}
+                  disabled={isDeleting}
+                  className={`w-full sm:w-auto px-4 py-2 text-white rounded-lg transition-colors ${
+                    isDeleting ? 'bg-gray-400 cursor-not-allowed' : 'bg-red-600 hover:bg-red-700'
+                  }`}
+                >
+                  {isDeleting ? '刪除中...' : '確認刪除'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
